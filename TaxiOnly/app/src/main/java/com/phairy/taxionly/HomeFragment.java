@@ -5,6 +5,8 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -30,6 +32,10 @@ import java.util.Calendar;
 
 public class HomeFragment extends Fragment implements LocationListener {  //} implements View.OnClickListener{
 
+    SQLiteDatabase database;
+    String DATABASENAME = "PART";
+    String TABLENAME = "PARTINFO";
+
     private String TAG = Start.TAG;
 
     private LocationManager locationManager;
@@ -38,7 +44,7 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
     private TextView longitudeTextView;
     private TextView logText;
     private String bestProvider;
-
+    private Button serviceButton;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private String gpsLog;
@@ -68,11 +74,10 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
         criteria.setAccuracy(Criteria.ACCURACY_FINE); //정확도 설정
 //        criteria.setPowerRequirement(Criteria.NO_REQUIREMENT); //전력 소모량
 
-        bestProvider = locationManager.getBestProvider(criteria,false);
+        bestProvider = locationManager.getBestProvider(criteria, false);
 
         locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
         //기지국으로부터 위치정보 업데이트를 요청함
-
 
 
         Button takeButton = (Button) view.findViewById(R.id.TakeButton);
@@ -85,7 +90,7 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
                 latitude = mlocation.getLatitude();
                 longitude = mlocation.getLongitude();
 
-                Log.e(TAG, "Homefragment: onClick_위치 : (" + latitude + ","+ longitude + ")");
+                Log.e(TAG, "Homefragment: onClick_위치 : (" + latitude + "," + longitude + ")");
                 try {
                     if ((int) mlocation.getLatitude() != 0) {
                         Toast.makeText(getActivity(), "( " + latitude + ", " + longitude + ")", Toast.LENGTH_SHORT).show();
@@ -99,6 +104,71 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
                 }
             }
         });
+        serviceButton = (Button) view.findViewById(R.id.serviceButton);
+        serviceButton.setOnClickListener(new View.OnClickListener() {
+                                             @Override
+                                             public void onClick(View view) {
+
+
+                                                 GpsCatcher.isWorking = !GpsCatcher.isWorking;
+                                                 Log.e(TAG, "Homefragment: onClick_위치 : GPS 끄기/켜기" + GpsCatcher.isWorking);
+                                                 if (GpsCatcher.isWorking) {
+                                                     serviceButton.setText("GPS 끄기");
+
+
+
+                                                     try {
+
+
+                                                         //거리 재는 함수
+
+
+
+                                                     } catch(Exception e) {
+
+                                                         Log.e(TAG, "Homefragment: serviceButton_거리 계산 실패");
+
+                                                     }
+                                                     try {
+
+                                                         //100은 part의 개수
+                                                         int distance = 0;
+
+                                                         database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
+                                                         Cursor cursor = database.rawQuery("Select partCurrentValue,partName FROM " + TABLENAME, null);
+                                                         int size = cursor.getCount();
+                                                         int value;
+                                                         for( int i = 0 ; i < size ; i++) {
+
+                                                             cursor.moveToPosition(i);
+                                                             value = cursor.getInt(0);
+
+                                                             //String etc;
+                                                             //if( etc.equals("Km") ){   // etc로 km와 day 구분
+
+                                                             value = distance + value;
+                                                            //} else{ value++; }
+                                                            // km가 아니면 하루 추가
+
+                                                             database.execSQL("UPDATE " + TABLENAME + " SET partCurrentValue = '" + value + "' WHERE partName = '" + cursor.getString(1) + "'");
+
+                                                         }
+
+                                                         Log.d(TAG, "AccountFragment:serviceButton_today's update success");
+
+
+                                                     } catch (Exception e) {
+                                                         e.printStackTrace();
+                                                         Log.e(TAG, "AccountFragment:serviceButton_today's update -------Failed-----");
+                                                     }
+                                                 } else {
+                                                     serviceButton.setText("GPS 시작");
+                                                 }
+                                             }
+                                         }
+        );
+
+
         return view;
     }
 
@@ -128,13 +198,11 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
         latitudeTextView.setText(String.format("%f", location.getLatitude()));
         longitudeTextView.setText(String.format("%f", location.getLongitude()));
 
-        gpsLog = "("+latitude +","+longitude + ")\n";
-
-
+        gpsLog = "(" + latitude + "," + longitude + ")\n";
 
 
         logText.setText(logText.getText().toString() + gpsLog);
-
+/*
         String mSdPath;
         FileOutputStream fos;
 
@@ -162,6 +230,7 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
 
             Log.e(TAG, "Homefragment : onLocationChanged_파일 출력 에러");
         }
+        */
     }
 
     @Override
@@ -191,6 +260,41 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
 
 
 
+    public int calculateGPSDistance(){
+
+        int total;
+        int intetval;
+
+        String mSdPath;
+
+        String ext = Environment.getExternalStorageState();
+        if (ext.equals(Environment.MEDIA_MOUNTED)) {
+            mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        } else {
+            mSdPath = Environment.MEDIA_UNMOUNTED;
+        }
+
+        File dir = new File(mSdPath + "/TaxiOnly");
+        dir.mkdir();
+
+        Calendar calendar = Calendar.getInstance();
+
+        File file = new File(mSdPath + "/TaxiOnly/gpsLog"+ (calendar.get(Calendar.MONTH)+1) + calendar.get(Calendar.DAY_OF_MONTH) + ".txt");
+        while( )
+        int front = data.indexOf("/");
+
+        if (i == 9) moreTen = 1;
+        if ((front != -1) && (i == maxSize - 1)) {                //마지막 문자열에 포함되어있을 경우
+
+            front = front + 3 + moreTen;
+            end = data.indexOf("/size");
+
+            tempString = data.substring(front, end);
+            middle = tempString.indexOf(",");
+
+            partName = tempString.substring(0, middle);
+            partMaxValue = tempString.substring(middle + 1, tempString.length());
 
 
+    }
 }

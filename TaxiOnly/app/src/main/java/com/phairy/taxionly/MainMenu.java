@@ -3,6 +3,7 @@ package com.phairy.taxionly;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -91,6 +92,9 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 //        };
 //        thread.start();
 
+
+        Intent intent = new Intent(this, GpsCatcher.class);
+        startService(intent);
 
     }
 

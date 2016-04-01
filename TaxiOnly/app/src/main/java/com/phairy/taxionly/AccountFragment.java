@@ -14,15 +14,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 
 
 public class AccountFragment extends Fragment {
@@ -76,6 +72,7 @@ public class AccountFragment extends Fragment {
             }
         });
 
+
         return view;
     }
 
@@ -100,7 +97,7 @@ public class AccountFragment extends Fragment {
             InputStream inputStream = getResources().openRawResource(R.raw.partinfo);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-
+            int maxSize;
             try {
                int i = inputStream.read();
                 while (i != -1) {
@@ -110,15 +107,17 @@ public class AccountFragment extends Fragment {
 
                 data = new String(byteArrayOutputStream.toByteArray(),"UTF-8");
                 inputStream.close();
+                maxSize = Integer.parseInt(data.substring(data.indexOf("size=") + 5, data.indexOf("#")));
             } catch (IOException e) {
+                maxSize = 0;
                 e.printStackTrace();
             }
-            int maxSize = Integer.parseInt(data.substring(data.indexOf("size=") + 5, data.indexOf("#")));
+
 
             database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
             String partName;
             String partMaxValue;
-            int front = 0, moreTen = 0, end = 0, middle = 0;
+            int front , moreTen = 0, end , middle ;
             String tempString;
 
             if (database != null) {
@@ -239,12 +238,15 @@ public class AccountFragment extends Fragment {
             partItemView.setPartName(cursor.getString(0));
             partItemView.setPartMaxValue(cursor.getInt(1));
             partItemView.setPartCurrentValue(cursor.getInt(2));
-            partItemView.setProgressBar(cursor.getInt(1), cursor.getInt(2));
+            ProgressBar progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleSmall);
+            progressBar.setProgress(100);
 
             return partItemView;
 
         }
     }
+
+
 }
 
  

@@ -39,7 +39,7 @@ public class PartItemView extends LinearLayout {
         if(Value < 10){
             partMaxValue.setText(Value+"년");
         }else{
-            partMaxValue.setText(Value+"Value");
+            partMaxValue.setText(Value+"Km");
         }
         
     }
@@ -48,7 +48,7 @@ public class PartItemView extends LinearLayout {
         if( maxValue < 10){
             partCurrentValue.setText(Value+"일째");     
         }else{
-            partCurrentValue.setText(Value+"Value");
+            partCurrentValue.setText(Value+"Km");
         }
         
     }
@@ -60,8 +60,7 @@ public class PartItemView extends LinearLayout {
             percent =  currentValue*10000 / maxValue;
         }
 
-        progressBar.setProgress(100);
-        
+        progressBar.setProgress(10);
     }
 
     

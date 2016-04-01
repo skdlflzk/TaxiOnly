@@ -64,10 +64,21 @@
         android:layout_width="120dp"
         android:layout_height="35dp"
         android:textSize="13dp"
-        android:text="gps잡기"
-        android:layout_centerHorizontal="true"
+        android:text="지도보기"
+        android:layout_above="@+id/serviceButton"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/serviceButton"
+        android:textColor = "#eeeeee"
+        android:background="#222222"
+        android:layout_width="120dp"
+        android:layout_height="35dp"
+        android:textSize="13dp"
+        android:text="GPS 시작"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="17dp" />
+        android:layout_alignStart="@+id/TakeButton"
+        android:onClick="onServiceButtonClicked" />
 
     <TextView
         android:layout_width="wrap_content"
