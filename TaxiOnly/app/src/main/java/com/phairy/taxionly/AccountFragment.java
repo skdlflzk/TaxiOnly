@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,8 +85,8 @@ public class AccountFragment extends Fragment {
             database.execSQL("CREATE TABLE if not exists " + TABLENAME + "("
                     + "_id integer PRIMARY KEY autoincrement, "
                     + "partName text, "
-                    + "partMaxValue integer, "
-                    + "partCurrentValue integer, "
+                    + "partMaxValue REAL, "
+                    + "partCurrentValue REAL, "
                     + "etc text)");
             Log.d(TAG, "AccountFragment:initPartData() / Creating " + TABLENAME + " Success");
         } catch (Exception e) {
@@ -117,7 +119,8 @@ public class AccountFragment extends Fragment {
             database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
             String partName;
             String partMaxValue;
-            int front , moreTen = 0, end , middle ;
+            String etc;
+            int front , moreTen = 0, end , middle,tail ;
             String tempString;
 
             if (database != null) {
@@ -132,12 +135,14 @@ public class AccountFragment extends Fragment {
 
                         tempString = data.substring(front, end);
                         middle = tempString.indexOf(",");
+                        tail = tempString.indexOf("-");
 
                         partName = tempString.substring(0, middle);
-                        partMaxValue = tempString.substring(middle + 1, tempString.length());
+                        partMaxValue = tempString.substring(middle + 1, tail);
+                        etc = tempString.substring(tail + 1, tempString.length());
 
                         database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 5000 + ")");
+                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue, etc) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 10000 + ", '"+ etc+"')");
 
                     } else if (front != -1) { //문자열을 찾은 경우
                         front = front + 3 + moreTen;
@@ -145,12 +150,15 @@ public class AccountFragment extends Fragment {
 
                         tempString = data.substring(front, end);//
                         middle = tempString.indexOf(",");
+                        tail = tempString.indexOf("-");
+
 
                         partName = tempString.substring(0, middle);
-                        partMaxValue = tempString.substring(middle + 1, tempString.length());
+                        partMaxValue = tempString.substring(middle + 1, tail);
+                        etc = tempString.substring(tail + 1, tempString.length());
 
                         database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 5000 + ")");
+                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue, etc) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 10000 + ", '"+ etc+"')");
 
                         database.close();
                     } else {
@@ -175,7 +183,7 @@ public class AccountFragment extends Fragment {
     private void getPartData() {
         int size = 0;
         String partName;
-        int partMaxValue, partCurrentValue;
+        double partMaxValue, partCurrentValue;
 
         try {
             Cursor cursor = database.rawQuery("Select partName, partMaxValue, partCurrentValue  FROM " + TABLENAME, null);
@@ -187,8 +195,8 @@ public class AccountFragment extends Fragment {
                 for (int i = 0; i < size; i++) {
                     cursor.moveToLast();
                     partName = cursor.getString(0);
-                    partMaxValue = cursor.getInt(1);
-                    partCurrentValue = cursor.getInt(2);
+                    partMaxValue = cursor.getDouble(1);
+                    partCurrentValue = cursor.getDouble(2);
                 }
             }
             cursor.close();
@@ -205,9 +213,9 @@ public class AccountFragment extends Fragment {
         String DATABASENAME = "PART";
         String TABLENAME = "PARTINFO";
         SQLiteDatabase database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-        Cursor cursor = database.rawQuery("SELECT partName, partMaxValue, partCurrentValue FROM " + TABLENAME, null);
+        Cursor cursor = database.rawQuery("SELECT partName, partMaxValue, partCurrentValue,etc FROM " + TABLENAME, null);
 
-
+        int[] progress;
         @Override
         public int getCount() {
             return cursor.getCount();
@@ -219,9 +227,14 @@ public class AccountFragment extends Fragment {
             return cursor.getString(0);
         }
 
-        public String getPartValue(int position) {
+        public double getPartValue(int position) {
             cursor.moveToPosition(position);
-            return cursor.getString(1);
+            return cursor.getDouble(1);
+        }
+
+        public double getPartCurrentValue(int position) {
+            cursor.moveToPosition(position);
+            return cursor.getDouble(2);
         }
 
         @Override
@@ -231,18 +244,31 @@ public class AccountFragment extends Fragment {
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
+
             cursor.moveToPosition(position);
 
             PartItemView partItemView = new PartItemView(getActivity());
 
             partItemView.setPartName(cursor.getString(0));
-            partItemView.setPartMaxValue(cursor.getInt(1));
-            partItemView.setPartCurrentValue(cursor.getInt(2));
-            ProgressBar progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleSmall);
-            progressBar.setProgress(100);
+            partItemView.setPartMaxValue(cursor.getDouble(1), cursor.getString(3));
+            partItemView.setPartCurrentValue(cursor.getDouble(2), cursor.getString(3));
+//            partItemView.setProgress(cursor.getInt(1),cursor.getInt(2));
+            ProgressBar progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleHorizontal);
+            progressBar.setIndeterminate(true);
+            progressBar.setVisibility(View.VISIBLE);
 
+            double percent = Double.valueOf(getPartValue(position))/ Double.valueOf(getPartCurrentValue(position));
+            progressBar.setProgress((int) (percent * 100));
+//            progressBar.setMinimumHeight(10);
+//            progressBar.setProgress(100);
+//            partItemView.addView(progressBar);
+
+//            TextView t = new TextView(getActivity());
+//            t.setText("asdsd");
+//            String strColor = "#000000";
+//            t.setTextColor(Color.parseColor(strColor));
+//            partItemView.addView(t);
             return partItemView;
-
         }
     }
 

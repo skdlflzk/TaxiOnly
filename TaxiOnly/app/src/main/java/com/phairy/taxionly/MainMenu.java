@@ -1,12 +1,24 @@
 package com.phairy.taxionly;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Vibrator;
+import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -14,7 +26,12 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 public class MainMenu extends ActionBarActivity implements OnClickListener {
 
@@ -24,11 +41,19 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
     Handler handler = null;
     int p = 0;    //페이지번호
     int v = 1;    //화면 전환 뱡향
+    Vibrator vibe;
+    static Context context;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
+
+    private String TAG = Start.TAG;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        context = this;
+        enableGPSSetting();
 
         //viewPager
         viewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -43,6 +68,25 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
         for (int i = 0; i < btn.length; i++) {
             btn[i].setOnClickListener(this);
         }
+
+
+
+        pref = getSharedPreferences("pref", Context.MODE_PRIVATE);
+        editor = pref.edit();
+
+        boolean isAlarmEnrolled = pref.getBoolean("isAlarmEnrolled", false);
+        if (isAlarmEnrolled == false) {
+            Log.e(TAG, "MainManu:onCreate_first excute");
+
+            enrollAlarm(20,22);
+            editor.putBoolean("isAlarmEnrolled", true);
+            editor.commit();
+        }else{
+            Log.d(TAG, "AccountFragment:onCreateView() / is not first");
+        }
+
+       handleIntentFlag(getIntent());       //intent flag에 따른 처리( gps ON, 가계부 시작 등 )
+
 
 //        handler = new Handler() {
 //
@@ -93,8 +137,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 //        thread.start();
 
 
-        Intent intent = new Intent(this, GpsCatcher.class);
-        startService(intent);
+
 
     }
 
@@ -103,27 +146,26 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 
         switch (v.getId()) {
             case R.id.btn_a:
-//				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-//				p = 0;
-//				v.setBackgroundColor(Color.parseColor("#00000000"));
+				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+				p = 0;
+				btn[p].setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(0);
-                //	Toast.makeText(this,"홈", Toast.LENGTH_SHORT).show();
+
                 break;
 
             case R.id.btn_b:
-//				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-//				p = 1;
-//				v.setBackgroundColor(Color.parseColor("#00000000"));
+				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+				p = 1;
+				v.setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(1);
-                //	Toast.makeText(this,"머리하기", Toast.LENGTH_SHORT).show();
                 break;
 
             case R.id.btn_c:
-//				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-//				p = 2;
-//				v.setBackgroundColor(Color.parseColor("#00000000"));
+				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+				p = 2;
+				v.setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(2);
-                //	Toast.makeText(this,"마이페이지", Toast.LENGTH_SHORT).show();
+
                 break;
 
             default:
@@ -137,31 +179,124 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
         switch (keyCode) {
-                case KeyEvent.KEYCODE_BACK:
-                    Log.d(Start.TAG, "MainMenu : BACK button down");
+            case KeyEvent.KEYCODE_BACK:
+                vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                vibe.vibrate(70);
+                Log.d(Start.TAG, "MainMenu : BACK button down");
 
-                    new AlertDialog.Builder(this).
-                            setIcon(android.R.drawable.ic_dialog_alert).
-                            setTitle("확인").
-                            setMessage("프로그램을 종료할까요?").
-                            setNegativeButton("취소",null).
-                            setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    moveTaskToBack(true);
-                                    finish();
-                                    System.exit(0);
-                                }
-                            }).show();
-                    break;
-                case KeyEvent.KEYCODE_HOME:
-                    finish();
-                    System.exit(0);
-                    //    ActivityManager actman = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-                    //     actman.restartPackage(getPackageName());
-                    //이를 위해선 permission.RESTART_PACKAGES 필요함
-            }
+                new AlertDialog.Builder(this).
+                        setIcon(android.R.drawable.ic_dialog_alert).
+                        setTitle("확인").
+                        setMessage("프로그램을 종료할까요?").
+                        setNegativeButton("취소", null).
+                        setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                moveTaskToBack(true);
+                                finish();
+                                System.exit(0);
+                            }
+                        }).show();
+                break;
+            case KeyEvent.KEYCODE_HOME:
+
+                finish();
+                System.exit(0);
+                //    ActivityManager actman = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+                //     actman.restartPackage(getPackageName());
+                //이를 위해선 permission.RESTART_PACKAGES 필요함
+        }
 
         return super.onKeyDown(keyCode, event);
+    }
+
+    private void enableGPSSetting() {
+        ContentResolver res = getContentResolver();
+        boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
+        if (!gpsEnabled) {
+            new AlertDialog.Builder(this)
+                    .setTitle("GPS 설정")
+                    .setMessage("GPS가 필요한 서비스입니다. \nGPS를 켜시겠습니까?")
+                    .setPositiveButton("GPS 켜기",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                    Intent intent = new Intent(
+                                            Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    startActivity(intent);
+                                }
+                            })
+                    .setNegativeButton("닫기",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int which) {
+                                }
+                            }).show();
+        }
+    }
+
+    private void handleIntentFlag(Intent intent){
+    try{
+
+        if( intent.getIntExtra("flag",0) == 1000 ) {
+            ContentResolver res = getContentResolver();
+            boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
+
+            if(!gpsEnabled){
+
+                Toast.makeText(getApplicationContext(), "GPS 수신기를 먼저 켜주세요", Toast.LENGTH_SHORT).show();
+
+                NotificationBroadcast.setNotification(getApplicationContext(),0);
+
+                return ;
+            }
+
+
+            Log.e(Start.TAG, "MainMenu : alarm! GPS 수집을 시작합니다");
+            Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
+            Intent intentService = new Intent(this, GpsCatcher.class);
+            GpsCatcher.isWorking = true;
+            startService(intentService); //서비스 시작
+
+                /*
+
+                HomeFragment 새로고침(버튼)
+
+                 */
+
+        }else {
+            Log.e(Start.TAG, "MainMenu : 평소 열기");
+        }
+    }catch (Exception e){
+        Log.e(Start.TAG, "MainMenu : putExtra 오류");
+    }
+
+    }
+    private void enrollAlarm(int hour, int minute) {
+
+        long now = System.currentTimeMillis();
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, hour);   //1~24 범위(아마)
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, 0);
+
+        Log.e(Start.TAG, "MainMenu :  enrollAlarm_"+ hour + "시 " +minute+"분 예약되었습니다");
+//        if(now-calendar.getTime()) {
+//            return;
+//        }
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent2 = new Intent(getApplicationContext(), NotificationBroadcast.class);
+        intent2.putExtra("flag", 1000);
+        // intent2.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+
+//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+10000, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
+//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000*60*60*24, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
+
     }
 }

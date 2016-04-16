@@ -32,7 +32,7 @@
         android:visibility="visible"
         android:layout_alignTop="@+id/partName"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@+id/partName" />
+        android:layout_toEndOf="@+id/partName" />
 
     <TextView
         android:id = "@+id/partCurrentValue"

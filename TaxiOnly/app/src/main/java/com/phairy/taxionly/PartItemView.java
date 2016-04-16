@@ -3,6 +3,7 @@ package com.phairy.taxionly;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -12,7 +13,7 @@ public class PartItemView extends LinearLayout {
     private TextView partMaxValue ;
     private TextView partCurrentValue ;
     private ProgressBar progressBar ;
-    private int maxValue;
+
     public PartItemView(Context context) {
         super(context);
         init(context);
@@ -33,34 +34,33 @@ public class PartItemView extends LinearLayout {
     public void setPartName(String name){
         partName.setText(name);
     }
-    public void setPartMaxValue(int Value){
+    public void setPartMaxValue(double Value, String Etc){
         
-        maxValue = Value;
-        if(Value < 10){
-            partMaxValue.setText(Value+"년");
+
+        if(Etc.equals("day")){
+            partMaxValue.setText((int)Value+"일");
         }else{
             partMaxValue.setText(Value+"Km");
         }
         
     }
-    public void setPartCurrentValue(int Value){
+    public void setPartCurrentValue(double Value ,String Etc){
        
-        if( maxValue < 10){
-            partCurrentValue.setText(Value+"일째");     
+        if( Etc.equals("day")){
+            partCurrentValue.setText((int)Value+"일 째");
         }else{
             partCurrentValue.setText(Value+"Km");
         }
         
     }
-    public void setProgressBar(int maxValue, int currentValue){
-        int percent;
-        if( maxValue < 10){
-           percent =  (10000*currentValue)/(360*maxValue);
-        }else{
-            percent =  currentValue*10000 / maxValue;
-        }
 
-        progressBar.setProgress(10);
+    public int setProgress(double maxValue, double currentValue){
+        double percent = currentValue/maxValue;
+
+        progressBar.setIndeterminate(true);
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress((int)(percent*100));
+        return (int)(percent*100);
     }
 
     

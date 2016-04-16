@@ -31,6 +31,7 @@ public class Start extends Activity {
         if (firstExecute == 1) {
        //     Log.e("hairyd", "Start->");
             myIntent = new Intent(getApplicationContext(), MainMenu.class);
+
         } else {
             Log.d(Start.TAG, "Start->MainMenu");
             myIntent = new Intent(getApplicationContext(), MainMenu.class);
@@ -39,35 +40,14 @@ public class Start extends Activity {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-
+                int flag = getIntent().getIntExtra("flag",0);
+                myIntent.putExtra("flag",flag);
                 startActivity(myIntent);
                 finish();
             }
         };
 
-        handler.sendEmptyMessageDelayed(0, 2000);
+        handler.sendEmptyMessageDelayed(0, 1000);
     }
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 }
