@@ -270,10 +270,10 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
 
 
             int front, end;
-            front = tempString.indexOf(",d=");
-            end = tempString.indexOf("#");
+            front = tempString.indexOf("<desc>") + 6;
+            end = tempString.indexOf("<desc/>");
 
-            distance = Double.valueOf(tempString.substring(front + 1, end));
+            distance = Double.valueOf(tempString.substring(front, end));
         }catch(Exception e){
             distance = 0;
         }
@@ -319,7 +319,7 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
         Log.e(Start.TAG, "HomeFragment : 수동으로 GPSCatcher를 실행");
 
         Intent intent = new Intent(getActivity(), GpsCatcher.class);
-
+//        intent.putExtra("flag",1000);//시작
 
         getActivity().startService(intent);
 
@@ -336,6 +336,7 @@ public class HomeFragment extends Fragment implements LocationListener {  //} im
                 GpsCatcher.isWorking = !GpsCatcher.isWorking;
 
                 Intent intent = new Intent(context,GpsCatcher.class);
+                intent.putExtra("flag",4444);
                 getActivity().stopService(intent);
 
                 Log.e(TAG, "Homefragment: toggleGPSCatcher_서비스를 종료합니다");

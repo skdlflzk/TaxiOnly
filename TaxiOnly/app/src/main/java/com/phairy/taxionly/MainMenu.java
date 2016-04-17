@@ -192,7 +192,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
                         setPositiveButton("확인", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                moveTaskToBack(true);
+//                                moveTaskToBack(true);
                                 finish();
                                 System.exit(0);
                             }
