@@ -1,6 +1,5 @@
 package com.phairy.taxionly;
 
-import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -15,10 +14,8 @@ import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Vibrator;
 import android.provider.Settings;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -26,19 +23,15 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 public class MainMenu extends ActionBarActivity implements OnClickListener {
 
     Button btn[] = new Button[3];
     ViewPager viewPager = null;
-    Thread thread = null;
-    Handler handler = null;
+
     int p = 0;    //페이지번호
     int v = 1;    //화면 전환 뱡향
     Vibrator vibe;
@@ -70,7 +63,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
         }
 
 
-
+/*
         pref = getSharedPreferences("pref", Context.MODE_PRIVATE);
         editor = pref.edit();
 
@@ -84,6 +77,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
         }else{
             Log.d(TAG, "AccountFragment:onCreateView() / is not first");
         }
+*/
 
        handleIntentFlag(getIntent());       //intent flag에 따른 처리( gps ON, 가계부 시작 등 )
 
@@ -236,9 +230,11 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
     }
 
     private void handleIntentFlag(Intent intent){
-    try{
 
-        if( intent.getIntExtra("flag",0) == 1000 ) {
+
+        try{
+
+        if( intent.getIntExtra("flag",0) == 1000 ) {    //상단바를 클릭하고 들어왔을 경우
             ContentResolver res = getContentResolver();
             boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
 
@@ -251,19 +247,18 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
                 return ;
             }
 
+            if( Start.getIsWorking(context) == 0) {
+                Log.e(Start.TAG, "MainMenu : alarm! GPS 수집을 시작합니다");
+                Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
+                Intent intentService = new Intent(this, GpsCatcher.class);
+                Start.toggleIsWorking(context, 1);
+                startService(intentService); //서비스 시작
 
-            Log.e(Start.TAG, "MainMenu : alarm! GPS 수집을 시작합니다");
-            Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
-            Intent intentService = new Intent(this, GpsCatcher.class);
-            GpsCatcher.isWorking = true;
-            startService(intentService); //서비스 시작
+                intent.putExtra("flag",0); // event가 다시 시작하지 않게 조치
 
-                /*
-
-                HomeFragment 새로고침(버튼)
-
-                 */
-
+            }else{
+                Toast.makeText(getApplicationContext(), "이미 기록중입니다\n종료 후 다시 시작해주세요", Toast.LENGTH_SHORT).show();
+            }
         }else {
             Log.e(Start.TAG, "MainMenu : 평소 열기");
         }
@@ -272,6 +267,8 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
     }
 
     }
+
+    /*
     private void enrollAlarm(int hour, int minute) {
 
         long now = System.currentTimeMillis();
@@ -299,4 +296,5 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 //        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000*60*60*24, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
 
     }
+    */
 }

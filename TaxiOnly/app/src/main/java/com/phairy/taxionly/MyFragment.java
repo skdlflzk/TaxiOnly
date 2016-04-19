@@ -14,13 +14,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.Calendar;
 
 
 public class MyFragment extends Fragment {
     String TAG = Start.TAG;
-    static int d=6;
+    static int d = 6;
 
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -32,9 +33,6 @@ public class MyFragment extends Fragment {
         View view = inflater.inflate(R.layout.my_fragment, container, false);
 
 
-
-
-
         Button TakeButton = (Button) view.findViewById(R.id.TakeButton);
         TakeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,22 +41,11 @@ public class MyFragment extends Fragment {
                 EditText minput = (EditText) getActivity().findViewById(R.id.MinuteInput);
                 EditText dinput = (EditText) getActivity().findViewById(R.id.DurationInput);
 
-                  pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
-                editor = pref.edit();
+                int h = Integer.parseInt(hinput.getText().toString());
+                int m = Integer.parseInt(minput.getText().toString());
+                d = Integer.parseInt(dinput.getText().toString());
+                enrollAlarm(h, m);
 
-                boolean isAlarmEnrolled = pref.getBoolean("isAlarmEnrolled", false);
-                if (isAlarmEnrolled == false) {
-                    Log.e(TAG, "MainManu:onCreate_first excute");
-
-                    int h = Integer.parseInt(hinput.getText().toString());
-                    int m = Integer.parseInt(minput.getText().toString());
-                    d = Integer.parseInt(dinput.getText().toString());
-                    enrollAlarm(h,m);
-                    editor.putBoolean("isAlarmEnrolled", true);
-                    editor.commit();
-                }else{
-                    Log.d(TAG, "AccountFragment:onCreateView() / is not first");
-                }
             }
         });
 
@@ -75,24 +62,28 @@ public class MyFragment extends Fragment {
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 0);
 
-        Log.e(Start.TAG, "MainMenu :  enrollAlarm_"+ hour + "시 " +minute+"분 예약되었습니다");
+        Log.e(Start.TAG, "MainMenu :  enrollAlarm_ 매일 " + hour + "시 " + minute + "분 예약되었습니다");
 //        if(now-calendar.getTime()) {
 //            return;
 //        }
+        Toast.makeText(getActivity(), "기록 시간을 "+ hour + "시 " + minute + "분에 " + d + "시간으로 지정했습니다", Toast.LENGTH_SHORT).show();
 
         AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(getActivity().ALARM_SERVICE);
         Intent intent2 = new Intent(getActivity(), NotificationBroadcast.class);
         intent2.putExtra("flag", 1000);
         // intent2.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 1111, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        alarmManager.cancel(pendingIntent);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
 
 //        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+10000, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
 //        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000*60*60*24, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
 
     }
-    static int getDuration(){
+
+    static int getDuration() {
         return d;
     }
 

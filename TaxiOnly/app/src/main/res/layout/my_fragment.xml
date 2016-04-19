@@ -11,15 +11,15 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="P'hairy.내 화면"
+        android:text="마이페이지"
         android:id="@+id/MainText"
         android:textSize="23dp"
-        android:textColor = "#FFFFFF"
+        android:textColor = "#AAAAAA"
+        android:layout_marginTop="58dp"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="103dp" />
+        android:layout_centerHorizontal="true" />
 
-
+    <!--
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -38,6 +38,7 @@
         android:textColor = "#555555"
         android:layout_alignTop="@+id/MainText"
         android:layout_alignStart="@+id/MinuteText" />
+    -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -45,7 +46,7 @@
         android:id="@+id/HourText"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_below="@+id/PWText"
+        android:layout_alignTop="@+id/HourInput"
         android:layout_alignParentStart="true" />
     <TextView
         android:layout_width="wrap_content"
@@ -54,17 +55,18 @@
         android:id="@+id/MinuteText"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_below="@+id/HourText"
+        android:layout_alignTop="@+id/MinuteInput"
         android:layout_alignParentStart="true" />
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
         android:text="10"
         android:id="@+id/HourInput"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_above="@+id/MinuteInput"
-        android:layout_toEndOf="@+id/HourText" />
+        android:layout_alignTop="@+id/MainText"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="true" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,25 +74,25 @@
         android:id="@+id/DurationText"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_below="@+id/MinuteText"
-        android:layout_alignParentStart="true" />
+        android:layout_alignBottom="@+id/DurationInput" />
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:text="8"
         android:id="@+id/DurationInput"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_below="@+id/MinuteInput"
-        android:layout_toEndOf="@+id/MainText" />
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/MinuteInput" />
     <EditText
-        android:layout_width="wrap_content"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:text="0"
         android:id="@+id/MinuteInput"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_alignTop="@+id/MinuteText"
+        android:layout_alignTop="@+id/HourInput"
+        android:layout_marginTop="70dp"
         android:layout_centerHorizontal="true" />
     <Button
         android:id="@+id/TakeButton"
@@ -100,9 +102,10 @@
         android:layout_height="35dp"
         android:textSize="13dp"
         android:text="알람 저장"
-        android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/MainText"
-        android:layout_marginBottom="74dp" />
+        android:layout_below="@+id/DurationInput"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop ="50dp"
+        />
 
 
 </RelativeLayout>

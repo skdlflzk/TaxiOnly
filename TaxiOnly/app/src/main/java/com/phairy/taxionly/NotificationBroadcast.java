@@ -18,8 +18,13 @@ import android.widget.Toast;
 
 public class NotificationBroadcast extends BroadcastReceiver {
 
+//    static Context mContext;
+
+
     String TAG = Start.TAG;
+
     public NotificationBroadcast() {
+
     }
 
     @Override
@@ -27,119 +32,89 @@ public class NotificationBroadcast extends BroadcastReceiver {
         // TODO: This method is called when the BroadcastReceiver is receiving
         // an Intent broadcast.
 
+//        mContext = context;
+        int flag = intent.getIntExtra("flag", 0);
 
-        final Context mContext = context;
-        final int flag = intent.getIntExtra("flag",0);
-
-//        Toast.makeText(context, "Alarm Received!", Toast.LENGTH_LONG).show();
         Log.e(TAG, "NotificationBroadcast: onReceive_");
 
-        if(flag == 1000){
-//            Vibrator vibe = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-//            vibe.vibrate(70);
+        if (flag == 2000) {  // 서비스가 강종이 되었을 경우
+            Log.e(TAG, "NotificationBroadcast: onReceive_강제종료...service 재시작");
+            Intent mIntent = new Intent(context, GpsCatcher.class);
+            context.startService(mIntent);
+
+        } else if (flag == 1000) {  //flag == 1000이면 정상 시작
+            Log.e(TAG, "NotificationBroadcast: onReceive_알람! service 시작 요청");
             setNotification(context, 0);
-//            String question;
-//
-//            question = "운행을 기록할까요?";
-//
-//            new AlertDialog.Builder(context).
-//                    setIcon(android.R.drawable.ic_dialog_alert).
-//                    setTitle("확인").
-//                    setMessage(question).
-//                    setNegativeButton("취소", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialogInterface, int i) {
-//
-//                            setNotification(context, 0);
-//
-//                        }
-//                    }).
-//                    setPositiveButton("확인", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialogInterface, int i) {
-//                            try {
-//
-//                                ContentResolver res = mContext.getContentResolver();
-//                                boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
-//                                if (!gpsEnabled) {
-//
-//                                    Toast.makeText(mContext, "GPS 수신기를 먼저 켜주세요", Toast.LENGTH_SHORT).show();
-//
-//
-//
-//                                    return;
-//                                }
-//
-//                                Log.e(TAG, "Homefragment: serviceButton_GPS를 시작합니다");
-//
-//                                Intent mIntent = new Intent(context, MainMenu.class);
-//                                mIntent.putExtra("flag",flag);
-//                                context.startActivity(mIntent);
-//
-//                            } catch (Exception e) {
-//
-//                            }
-//                            return;
-//                        }
-//                    }).show();
 
         }
 
-//        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 
-
-    static public void setNotification(Context context, int isWorking) {
+    static public void setNotification(Context context, int state) {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.cancel(0);
+        try {
+
+            notificationManager.cancel(0);
+
+        } catch(Exception e) {
+
+        }
         long[] vi = new long[2];
         vi[0] = 500;
         vi[1] = 500;
 
         Intent intent = new Intent(context, Start.class);
-        if(isWorking != 3 ){
-            intent.putExtra("flag",1000);  //클릭하면 서비스를 실행한다
-        }else{
-            intent.putExtra("flag",4444);  //서비스가 죽었다 누르면 가계부를 작성하러감
-        }
-        PendingIntent pi = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
-
+        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setContentTitle("TAXIONLY");
 
+        if (state == 0) {
+            intent.putExtra("flag", 1000);  //클릭하면 서비스를 실행한다
+            builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+        } else if(state == 3){
+            intent.putExtra("flag", 4444);  //서비스가 죽었다 누르면 가계부를 작성하러감
+            builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+        }  else {
+            intent.putExtra("flag", 0);
+            vi[0] = 0;
+            vi[1] = 0;
+        }
+
+        PendingIntent pi = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
+
+
         builder.setContentIntent(pi);
 //        builder.addAction(R.drawable.notification_template_icon_bg, "C", pi);
-        builder.setVibrate(vi); //노티가 등록될 때 진동 패턴 1초씩 두번.
-        builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
+//        builder.setVibrate(vi); //노티가 등록될 때 진동 패턴 1초씩 두번.
 
         String tickText = "";
-        int flag ;
-        if (isWorking == 0) {
+        int flag = 0;
+        if (state == 0) {
             tickText = "운행을 시작하셨습니까?";
             builder.addAction(R.drawable.notification_template_icon_bg, "운행 시작!", pi);
-            flag = Notification.FLAG_ONLY_ALERT_ONCE;
+            flag = Notification.FLAG_AUTO_CANCEL;
 
-        } else if(isWorking == 1){
+        } else if (state == 1) {
             tickText = "";
             flag = Notification.FLAG_NO_CLEAR;
 
-        }else if(isWorking == 2){
-        tickText = "운행 중 입니다 오늘도 안전운전 되세요!";
+        } else if ( state == 2 ) {
+            tickText = "운행 중 입니다 오늘도 안전운전 되세요!";
 //        builder.addAction(R.drawable.notification_template_icon_bg, "가계부 작성하기", pi);
 //            builder.addAction(R.drawable.notification_template_icon_bg, "", pi);
-        flag = Notification.FLAG_NO_CLEAR;
+            flag = Notification.FLAG_NO_CLEAR;
 
-        }else{
+        } else if( state == 3 ) {
 
             tickText = "운행이 종료되었습니다";
 
             builder.addAction(R.drawable.notification_template_icon_bg, "가계부 작성하기", pi);
 //            builder.addAction(R.drawable.notification_template_icon_bg, "", pi);
-            flag = Notification.FLAG_ONLY_ALERT_ONCE;
+            flag = Notification.FLAG_AUTO_CANCEL;
         }
         builder.setContentText(tickText).setSmallIcon(R.drawable.gon);
 

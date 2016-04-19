@@ -39,6 +39,9 @@ public class AccountFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.account_fragment, container, false);
 
+
+        Log.e(TAG, "--AccountFragment--");
+
         pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
         editor = pref.edit();
 
