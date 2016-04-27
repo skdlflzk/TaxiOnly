@@ -1,20 +1,14 @@
 package com.phairy.taxionly;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.LocationManager;
-import android.os.Vibrator;
-import android.provider.Settings;
+
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 public class NotificationBroadcast extends BroadcastReceiver {
 
@@ -44,7 +38,13 @@ public class NotificationBroadcast extends BroadcastReceiver {
 
         } else if (flag == 1000) {  //flag == 1000이면 정상 시작
             Log.e(TAG, "NotificationBroadcast: onReceive_알람! service 시작 요청");
-            setNotification(context, 0);
+            Intent mIntent = new Intent(context, AlarmActivity.class);
+            mIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            mIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            context.startActivity(mIntent);
+
+//            setNotification(context, 0);
 
         }
 
@@ -68,6 +68,8 @@ public class NotificationBroadcast extends BroadcastReceiver {
 
         Intent intent = new Intent(context, Start.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         builder.setContentTitle("TAXIONLY");

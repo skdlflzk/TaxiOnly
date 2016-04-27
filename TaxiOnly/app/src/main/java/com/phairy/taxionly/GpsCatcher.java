@@ -1,11 +1,14 @@
 package com.phairy.taxionly;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -25,13 +28,15 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
     private String TAG = Start.TAG;
 
+    SQLiteDatabase database;
+    String DATABASENAME = "PART";
+    String TABLENAME = "PARTINFO";
+
     private LocationManager locationManager;
     private LocationListener locationListener;
     static Location mlocation;
 
     public static Context context;
-
-    private Thread thread;
 
     public boolean first = true;
 
@@ -44,7 +49,6 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     static String fileName;
 
     static long startTime;
-    static long duration;
     static int timeLimit;
 
     static int t;  //시간 측정을 할까...?
@@ -55,7 +59,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
     File file;
     FileOutputStream fos;
-    SharedPreferences pref;
+    SharedPreferences pref;     //비정상 종료시 마지막으로 수정된 파일 이름에 저장
 
     @Override
     public void onCreate() {
@@ -70,6 +74,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         Log.e(TAG, "--GPSCatcher-- onCreate_ isWorking == " + isWorking + ", 작업 시간 - " + timeLimit);
 
         if (isWorking == 1) {
+
             NotificationBroadcast.setNotification(context, 2);  // 안전 운행 시작!
 
             Calendar calendar = Calendar.getInstance();
@@ -130,12 +135,11 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         }
 
 
-        if (isWorking != 0) {
+        if ( isWorking != 0 ) {         // 종료되지 않을때
             unregisterRestartAlarm();
 
             try {
-                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                //GPS로부터 위치정보 업데이트를 요청함
+                locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);     //GPS로부터 위치정보 업데이트를 요청함
 
                 Criteria criteria = new Criteria();
                 criteria.setAccuracy(Criteria.ACCURACY_FINE); //정확도 설정
@@ -154,13 +158,104 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         }
     }
 
+
     @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
+    public int onStartCommand(Intent intent, int flags, int startId) {
 
-        throw new UnsupportedOperationException("Not yet implemented");
+        if (isWorking != 0) {
 
+            Thread thread = new Thread() {
+
+                public void run() {
+                    super.run();
+
+                    while (isWorking != 0) {
+
+                        try {
+                            Thread.sleep(t * 1000); //1초 또는 5초에  실행중 띄움
+
+                            Log.d(TAG, "GPSCatcher:onCreate_servive 실행 중 - " + t + "초 간격, 실행 후 " + (System.currentTimeMillis() - startTime) / 1000 + "초 경과");
+
+                            if (((System.currentTimeMillis() - startTime) / (3600000) > timeLimit) || trigger ) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s
+
+                                try {
+
+                                    Log.e(TAG, "GPSCatcher:onCreate_servive 작업 종료됨 ");
+
+                                    Start.toggleIsWorking(context, 0);  // 종료
+                                    isWorking = 0;
+
+                                    if(!trigger) {      //수동 종료아닐 때 상단 알림
+
+                                        NotificationBroadcast.setNotification(getContext(), 3); //timeout으로 종료 상단바 알림
+
+                                    }else{              //수동 종료일 때 상단바 알림 제거
+                                        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                                        notificationManager.cancel(0);
+                                    }
+
+
+
+
+                                    updatePart();           //이동 거리 업데이트
+
+
+
+
+
+                                    locationManager.removeUpdates(locationListener);
+                                    locationManager = null;
+
+                                } catch (Exception e) {
+
+                                    Log.d(TAG, "GPSCatcher : onCreate_error on setNotify or removeUpdate or toggleGPSCatcher");
+
+                                }
+
+                                try {
+
+                                    fos = new FileOutputStream(file, true);  //mode_append
+                                    String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">\n" +
+                                            "<ele>" + e2 + "</ele>" +
+                                            "<name>종착 지점</name>" +
+                                            "</wpt>";
+                                    fos.write(waypoint.getBytes());
+
+                                    String trailer = "</trkseg></trk>\n" + "</gpx>";
+
+                                    fos.write(trailer.getBytes());
+                                    fos.close();
+
+                                } catch (Exception e) {
+
+                                    Log.e(TAG, "GPSCatcher : onCreate_파일 마무리 에러");
+                                }
+
+                                Log.d(TAG, "GPSCatcher : onCreate_ stopingSelf...");
+                                stopSelf();
+
+                            }
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            };
+            thread.start();
+
+        } else { //isWorking == false라면
+
+            Log.d(TAG, "GPSCatcher:onCreate_ but isWorking == false, " + isWorking);
+
+            stopSelf();
+
+        }
+
+        return super.onStartCommand(intent, START_STICKY, startId);
     }
+
+
 
 
     @Override
@@ -307,7 +402,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         e2 = e3;
 //        v1 = v2; //v1을 저장할 필요가 있나?
         String gpsLog = "<trkpt lat=\"" + x2 + "\" lon=\"" + y2 + "\">" +
-                "<ele>" + e2 + "</ele><desc>" + String.format("%.3f", distance) + "</desc><extensions><gpx10:speed>" + String.format("%.1f", v2) + "</gpx10:speed></extensions></trkpt>\n";
+                "<ele>" + e2 + "</ele><desc>" + String.format("%.2f", distance) + "</desc><extensions><gpx10:speed>" + String.format("%.1f", v2) + "</gpx10:speed></extensions></trkpt>\n";
 
 
 //        if( location.getSpeed() < 10 ){
@@ -356,103 +451,14 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     public void onProviderDisabled(String s) {
         Log.e(TAG, "GPSCatcher : onProviderDisabled_위치정보 공급받을수 없음");
     }
-
-
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
 
-        Log.e(TAG, "GPSCatcher : onStartCommand_ isWorking  = " + isWorking);
+        throw new UnsupportedOperationException("Not yet implemented");
 
-        if (isWorking != 0) {
-            thread = new Thread() {
-                //run은 jvm이 쓰레드를 채택하면, 해당 쓰레드의 run메서드를 수행한다.
-                public void run() {
-
-                    super.run();
-
-                    while (isWorking != 0) {
-                        try {
-                            Thread.sleep(t * 1000); //1초 또는 5초에  실행중 띄움
-
-//                            isWorking = Start.getIsWorking(context);
-
-                            duration = (System.currentTimeMillis() - startTime) / 1000;
-                            Log.d(TAG, "GPSCatcher:onCreate_servive 실행 중 - " + t + "초 간격, 실행 후 " + duration + "초 경과");
-
-                            if (((System.currentTimeMillis() - startTime) / (3600000) > timeLimit) || trigger ) {     //6시간 이상 일을 하였다면 3600*1000 ==1시간
-
-                                try {
-
-                                    Log.e(TAG, "GPSCatcher:onCreate_servive 작업 종료됨 ");
-
-                                    NotificationBroadcast.setNotification(getContext(), 3); //timeout으로 종료 상단바 알림
-
-
-                                    //TODO 서비스/액티비티에서 다른 프래그먼트의 함수 호출(toggleGPSCatcher())하기.
-
-                                    //http://www.stechstar.com/user/zbxe/index.php?document_srl=30091&mid=AndroidApps&sort_index=regdate&order_type=asc&category=12151
-
-
-//                                    HomeFragment ttm = (HomeFragment) getSupportFragmentManager().findFragmentById(R.id.content_frame);
-//                                    ttm.favoritesButton();
-//                                    ((HomeFragment) HomeFragment.context).toggleGPSCatcher();
-
-
-                                    Start.toggleIsWorking(context, 0);  // 종료
-
-                                    isWorking = 0;
-
-                                    locationManager.removeUpdates(locationListener);
-                                    locationManager = null;
-
-                                } catch (Exception e) {
-
-                                    Log.d(TAG, "GPSCatcher : onCreate_error on setNotify or removeUpdate or toggleGPSCatcher");
-
-                                }
-                                try {
-
-                                    fos = new FileOutputStream(file, true);  //mode_append
-                                    String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">\n" +
-                                            "<ele>" + e2 + "</ele>" +
-                                            "<name>종착 지점</name>" +
-                                            "</wpt>";
-                                    fos.write(waypoint.getBytes());
-
-                                    String trailer = "</trkseg></trk>\n" + "</gpx>";
-
-                                    fos.write(trailer.getBytes());
-                                    fos.close();
-
-                                } catch (Exception e) {
-
-                                    Log.e(TAG, "GPSCatcher : onCreate_파일 마무리 에러");
-                                }
-
-                                Log.d(TAG, "GPSCatcher : onCreate_ stopingSelf...");
-                                stopSelf();
-
-                            }
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            };
-            thread.start();
-
-        } else { //isWorking == false라면
-
-            Log.d(TAG, "GPSCatcher:onCreate_ but isWorking == false, " + isWorking);
-
-            stopSelf();
-
-        }
-
-        return super.onStartCommand(intent, START_STICKY, startId);
     }
-
+    /*
     static public String getFileName() {
         return fileName;
     }
@@ -460,7 +466,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     static public double getDistance() {
         return distance;
     }
-
+*/
     private Context getContext() {
         return this;
     }
@@ -477,6 +483,40 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         } else {
 
             Log.e(TAG, "GPSCatcher : onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 종료! 현재 이동 거리 =  " + distance + "m,  " + fileName + "에 저장되었습니다");
+        }
+    }
+
+    private void updatePart() {
+
+        Log.e(Start.TAG, "GpsCatcher : updatePart_");
+        database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
+        Cursor cursor = database.rawQuery("Select partCurrentValue,partName,etc FROM " + TABLENAME, null);
+
+        int size = cursor.getCount();   // 자동차 부품 총 량
+
+        double value;
+
+        for (int i = 0; i < size; i++) {
+
+            cursor.moveToPosition(i);
+            value = cursor.getDouble(0);
+
+            String etc = cursor.getString(2);
+
+            if (etc.equals("km")) {   // etc로 km와 day 구분
+
+                value += Double.parseDouble( String.format( "%.2f", distance ) );  //10m단위 까지
+
+            } else { //             km가 아니면 하루 추가
+
+                value++;
+
+            }
+
+            database.execSQL("UPDATE " + TABLENAME + " SET partCurrentValue = '" + value + "' WHERE partName = '" + cursor.getString(1) + "'");
+
+            Log.d(TAG, "GpsCatcher:updatePart_ " + cursor.getString(1) + "의 값이 " + value + etc + " 로...");
+
         }
     }
 

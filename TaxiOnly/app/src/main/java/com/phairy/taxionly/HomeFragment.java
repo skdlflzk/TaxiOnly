@@ -37,10 +37,6 @@ import java.util.Calendar;
 
 public class HomeFragment extends Fragment implements LocationListener {
 
-    SQLiteDatabase database;
-    String DATABASENAME = "PART";
-    String TABLENAME = "PARTINFO";
-
     private String TAG = Start.TAG;
 
     static public Context context;
@@ -101,8 +97,6 @@ public class HomeFragment extends Fragment implements LocationListener {
 //                Location.distanceBetween(37.63660853, 127.02408667, 37.63661281,127.02408684, result);
 //                Log.e(TAG, "Homefragment: res = " + result[0]);
 
-
-//                    MainMenu.setNotification(getActivity(), true);
 
                 } catch (Exception e) {
                     Log.e(TAG, "Homefragment: onTakeButton_위치 받기 실패");
@@ -231,7 +225,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         Toast.makeText(getActivity(), "위치정보 공급받을수 없음.", Toast.LENGTH_SHORT).show();
     }
 
-
+/*
     public double calculateGPSDistance() {
 
         String log = "";
@@ -284,52 +278,28 @@ public class HomeFragment extends Fragment implements LocationListener {
 
         return distance;
     }
+*/
 
-    public void updatePart(double distance) {
-
-        Log.e(Start.TAG, "HomeFragment : updatePart_");
-        database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-        Cursor cursor = database.rawQuery("Select partCurrentValue,partName,etc FROM " + TABLENAME, null);
-
-        int size = cursor.getCount();   // 자동차 부품 총 량
-
-        double value;
-
-        for (int i = 0; i < size; i++) {
-
-            cursor.moveToPosition(i);
-            value = cursor.getDouble(0);
-
-            String etc = cursor.getString(2);
-
-            if (etc.equals("km")) {   // etc로 km와 day 구분
-
-                value += distance;
-
-            } else { //             km가 아니면 하루 추가
-
-                value++;
-
-            }
-
-            database.execSQL("UPDATE " + TABLENAME + " SET partCurrentValue = '" + value + "' WHERE partName = '" + cursor.getString(1) + "'");
-
-            Log.d(TAG, "AccountFragment:updatePart_ " + cursor.getString(1) + "의 값이 " + value + etc + " 로...");
-
-        }
-    }
 
     private void manuallyStartGpsCatcher() {
 
-        Log.e(Start.TAG, "HomeFragment : 수동으로 GPSCatcher를 실행");
 
-        Start.toggleIsWorking(getActivity(), 1);
+        try {
 
-        Intent intent = new Intent(getActivity(), GpsCatcher.class);
+            Start.toggleIsWorking(getActivity(), 1);
+
+            Intent intent = new Intent(getActivity(), GpsCatcher.class);
 //        intent.putExtra("flag",1000);//시작
 
-        getActivity().startService(intent);
+            getActivity().startService(intent);
+            GpsCatcher.trigger = false;  // trigger 끄기
 
+            Log.e(Start.TAG, "HomeFragment : manuallyStartGpsCatcher_수동으로 GPSCatcher를 실행합니다");
+
+        } catch (Exception e) {
+
+            Log.e(Start.TAG, "HomeFragment : manuallyStartGpsCatcher_GPSCatcher 수동 실행 실패!");
+        }
     }
 
     public void toggleGPSCatcher(int isW) {
@@ -340,45 +310,19 @@ public class HomeFragment extends Fragment implements LocationListener {
 
             try {
 
-                double distance;
-                distance = calculateGPSDistance();  //distance = 오늘 움직인 거리 총량
-
-                updatePart(distance);        //오늘 이동 거리 적용
-
-                                                         /*
-                                                         AccountFragment 새로고침
-                                                         */
-
-                Log.e(TAG, "Homefragment:toggleGPSCatcher_today's update -------Success," + distance + " m 이동");
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-                Log.e(TAG, "Homefragment: toggleGPSCatcher_distance update Failed-----;");
-
-            }
-
-            try {
-
                 Log.e(TAG, "Homefragment: toggleGPSCatcher_서비스를 종료합니다");
 
                 Start.toggleIsWorking(getActivity(), 0);   //0로 변경
                 GpsCatcher.trigger = true;  // 종료 시킴
 
+                Toast.makeText(getActivity(), "GPS를 종료합니다", Toast.LENGTH_SHORT).show();
 
-                try {
-                    NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                    notificationManager.cancel(0);
-                } catch (Exception e) {
-
-                }
-
-                Toast.makeText(getActivity(), "GPS가 종료되었습니다", Toast.LENGTH_SHORT).show();
                 serviceButton.setText("GPS 시작하기");
 
             } catch (Exception e) {
-                Log.e(TAG, "Homefragment: toggleGPSCatcher_서비스 종료 실패");
+                Log.e(TAG, "Homefragment: toggleGPSCatcher_서비스 종료 실패!");
             }
+
             /*
             가계부로 이동
              */
@@ -387,28 +331,30 @@ public class HomeFragment extends Fragment implements LocationListener {
 
             try {
 
-
                 ContentResolver res = getActivity().getContentResolver();
                 boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
+
                 if (!gpsEnabled) {
 
                     Toast.makeText(getActivity(), "GPS 수신기를 먼저 켜주세요", Toast.LENGTH_SHORT).show();
-//                    NotificationBroadcast.setNotification(getActivity(),0);
+
                     return;
                 }
 
-                Start.toggleIsWorking(getActivity(), 1);   // 파일
 
                 Log.e(TAG, "Homefragment: toggleGPSCatcher_ GPS ON");
 
-                Toast.makeText(getActivity(), "GPS가 켜졌습니다", Toast.LENGTH_SHORT).show();
+
 
                 serviceButton.setText("GPS 종료하기");
 
                 manuallyStartGpsCatcher();
 
+                Toast.makeText(getActivity(), "GPS가 켜졌습니다", Toast.LENGTH_SHORT).show();
+
             } catch (Exception e) {
-                Log.e(TAG, "Homefragment: toggleGPSCatcher_GPS ON 실패!!!!!");
+
+                Log.e(TAG, "Homefragment: toggleGPSCatcher_GPS ON 실패!");
 
             }
         }
