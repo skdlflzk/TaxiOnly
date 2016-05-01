@@ -2,14 +2,10 @@
 package com.phairy.taxionly;
 
 import android.app.AlertDialog;
-import android.app.NotificationManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,7 +13,6 @@ import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
@@ -28,11 +23,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.Calendar;
 
 
 public class HomeFragment extends Fragment implements LocationListener {
@@ -85,6 +75,7 @@ public class HomeFragment extends Fragment implements LocationListener {
         takeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 try {
                     mlocation = GpsCatcher.mlocation;
 
@@ -92,8 +83,8 @@ public class HomeFragment extends Fragment implements LocationListener {
                     longitude = mlocation.getLongitude();
 
                     Log.e(TAG, "Homefragment: onClick_위치 : (" + latitude + "," + longitude + ")");
-                    float[] result = new float[3];
 
+//                    float[] result = new float[3];
 //                Location.distanceBetween(37.63660853, 127.02408667, 37.63661281,127.02408684, result);
 //                Log.e(TAG, "Homefragment: res = " + result[0]);
 
@@ -102,14 +93,10 @@ public class HomeFragment extends Fragment implements LocationListener {
                     Log.e(TAG, "Homefragment: onTakeButton_위치 받기 실패");
                 }
                 try {
-                    if ((int) mlocation.getLatitude() != 0) {
 
-                        Toast.makeText(getActivity(), mlocation.getSpeed() + "m/s로 총" + GpsCatcher.distance + "m 이동함", Toast.LENGTH_SHORT).show();
-                        openMap(mlocation.getLatitude(), mlocation.getLongitude());
-                    } else {
-                        Toast.makeText(getActivity(), "( " + latitude + ", " + longitude + ")", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), mlocation.getSpeed() + "m/s로 총" + GpsCatcher.distance + "m 이동함", Toast.LENGTH_SHORT).show();
+//                        openMap(mlocation.getLatitude(), mlocation.getLongitude());
 
-                    }
                 } catch (Exception e) {
                     Toast.makeText(getActivity(), "정보가 아직 수신되지 않음", Toast.LENGTH_SHORT).show();
                 }

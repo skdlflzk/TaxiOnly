@@ -70,7 +70,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         isWorking = Start.getIsWorking(context);
 
         pref = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
-        timeLimit = MyFragment.getDuration();
+        timeLimit = pref.getInt("timeLimit",6);
         Log.e(TAG, "--GPSCatcher-- onCreate_ isWorking == " + isWorking + ", 작업 시간 - " + timeLimit);
 
         if (isWorking == 1) {
@@ -79,7 +79,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             Calendar calendar = Calendar.getInstance();
             startTime = System.currentTimeMillis();
-            fileName = "" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.SECOND) + " ";  //4월 10일 0ㅅ;
+            fileName = "" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + " ";  //4월 10일 0ㅅ;
 
 
             SharedPreferences.Editor editor;
@@ -92,6 +92,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         } else if (isWorking == 2) {
             startTime = pref.getLong("startTime", 0);
             fileName = pref.getString("fileName", "errorFile");
+
         }
 
         String mSdPath;
@@ -279,8 +280,6 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             e2 = e3;
             v2 = v3;
 
-//            x1 = x2 = x3; y1 = y2 = y3;
-//            v2 = v3;
             i--;
 
             if (i == 0) {
@@ -458,6 +457,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         throw new UnsupportedOperationException("Not yet implemented");
 
     }
+
     /*
     static public String getFileName() {
         return fileName;
