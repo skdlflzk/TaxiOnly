@@ -60,6 +60,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     File file;
     FileOutputStream fos;
     SharedPreferences pref;     //비정상 종료시 마지막으로 수정된 파일 이름에 저장
+    Calendar calendar;
 
     @Override
     public void onCreate() {
@@ -70,16 +71,19 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         isWorking = Start.getIsWorking(context);
 
         pref = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
-        timeLimit = pref.getInt("timeLimit",6);
+        timeLimit = pref.getInt("timeLimit", 6);
         Log.e(TAG, "--GPSCatcher-- onCreate_ isWorking == " + isWorking + ", 작업 시간 - " + timeLimit);
+
+        calendar = Calendar.getInstance();
 
         if (isWorking == 1) {
 
             NotificationBroadcast.setNotification(context, 2);  // 안전 운행 시작!
 
-            Calendar calendar = Calendar.getInstance();
+
             startTime = System.currentTimeMillis();
-            fileName = "" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + " ";  //4월 10일 0ㅅ;
+            fileName = "" + String.format("%02d",calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d",calendar.get(Calendar.DAY_OF_MONTH)) +
+                    " " + String.format("%02d",calendar.get(Calendar.HOUR_OF_DAY)) + ":" +String.format("%02d", calendar.get(Calendar.MINUTE)) + "";
 
 
             SharedPreferences.Editor editor;
@@ -92,7 +96,9 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         } else if (isWorking == 2) {
             startTime = pref.getLong("startTime", 0);
             fileName = pref.getString("fileName", "errorFile");
-
+            distance = pref.getFloat("distance",0);
+        } else{
+            Log.e(TAG, "GPSCatcher:onCreate_isWorking == 0 인데 다시 시작됨 현재 파일 = " + fileName);
         }
 
         String mSdPath;
@@ -104,7 +110,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             mSdPath = Environment.MEDIA_UNMOUNTED;
         }
 
-        file = new File(mSdPath + "/TaxiOnly/gps" + fileName + ".gpx");  //파일 생성!
+        file = new File(mSdPath + "/TaxiOnly/gps" + fileName + ".txt");  //파일 생성!
 
 
         if (isWorking == 1) {
@@ -175,13 +181,13 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                         try {
                             Thread.sleep(t * 1000); //1초 또는 5초에  실행중 띄움
 
-                            Log.d(TAG, "GPSCatcher:onCreate_servive 실행 중 - " + t + "초 간격, 실행 후 " + (System.currentTimeMillis() - startTime) / 1000 + "초 경과");
+                            Log.d(TAG, "GPSCatcher:onStartCommand_servive 실행 중 - " + t + "초 간격, 실행 후 " + (System.currentTimeMillis() - startTime) / 1000 + "초 경과");
 
                             if (((System.currentTimeMillis() - startTime) / (3600000) > timeLimit) || trigger ) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s
 
                                 try {
 
-                                    Log.e(TAG, "GPSCatcher:onCreate_servive 작업 종료됨 ");
+                                    Log.e(TAG, "GPSCatcher:onStartCommand_servive 작업 종료됨 ");
 
                                     Start.toggleIsWorking(context, 0);  // 종료
                                     isWorking = 0;
@@ -209,17 +215,16 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                                 } catch (Exception e) {
 
-                                    Log.d(TAG, "GPSCatcher : onCreate_error on setNotify or removeUpdate or toggleGPSCatcher");
+                                    Log.d(TAG, "GPSCatcher : onStartCommand_error on setNotify or removeUpdate or toggleGPSCatcher");
 
                                 }
 
                                 try {
 
                                     fos = new FileOutputStream(file, true);  //mode_append
-                                    String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">\n" +
-                                            "<ele>" + e2 + "</ele>" +
-                                            "<name>종착 지점</name>" +
-                                            "</wpt>";
+                                    String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">\n" + "<name>fin " +
+                                            String.format("%02d",calendar.get(Calendar.HOUR_OF_DAY)) + ":" +String.format("%02d", calendar.get(Calendar.MINUTE))+
+                                            "</name></wpt>";
                                     fos.write(waypoint.getBytes());
 
                                     String trailer = "</trkseg></trk>\n" + "</gpx>";
@@ -229,10 +234,10 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                                 } catch (Exception e) {
 
-                                    Log.e(TAG, "GPSCatcher : onCreate_파일 마무리 에러");
+                                    Log.e(TAG, "GPSCatcher : onStartCommand_파일 마무리 에러");
                                 }
 
-                                Log.d(TAG, "GPSCatcher : onCreate_ stopingSelf...");
+                                Log.d(TAG, "GPSCatcher : onStartCommand_ stopingSelf...");
                                 stopSelf();
 
                             }
@@ -247,7 +252,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         } else { //isWorking == false라면
 
-            Log.d(TAG, "GPSCatcher:onCreate_ but isWorking == false, " + isWorking);
+            Log.d(TAG, "GPSCatcher:onStartCommand_ but isWorking ==  " + isWorking);
 
             stopSelf();
 
@@ -288,7 +293,6 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                 try {
                     fos = new FileOutputStream(file, true);  //mode_append
                     String waypoint = "<wpt lon=\"" + x1 + "\" lat=\"" + y1 + "\">" +
-                            "<ele>" + e1 + "</ele>" +
                             "<name>출발 지점</name>" +
                             "</wpt>";
                     fos.write(waypoint.getBytes());
@@ -401,8 +405,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         e2 = e3;
 //        v1 = v2; //v1을 저장할 필요가 있나?
         String gpsLog = "<trkpt lat=\"" + x2 + "\" lon=\"" + y2 + "\">" +
-                "<ele>" + e2 + "</ele><desc>" + String.format("%.2f", distance) + "</desc><extensions><gpx10:speed>" + String.format("%.1f", v2) + "</gpx10:speed></extensions></trkpt>\n";
-
+                "<desc>" +  String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ":" +String.format("%02d", calendar.get(Calendar.SECOND)) + "</desc></trkpt>\n";
 
 //        if( location.getSpeed() < 10 ){
 //            locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
@@ -474,21 +477,29 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     @Override
     public void onDestroy() {
         super.onDestroy();
+        SharedPreferences.Editor editor = pref.edit();
 
         if (isWorking != 0) {
+
             registerRestartAlarm();
 
-            Log.e(TAG, "GPSCatcher : onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 서비스 계속 진행..." + distance);
+            Log.e(TAG, "GPSCatcher : onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 서비스를 계속 진행합니다..." + distance);
+
+            editor.putFloat("distance", (float) distance);
+            editor.commit();
 
         } else {
 
             Log.e(TAG, "GPSCatcher : onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 종료! 현재 이동 거리 =  " + distance + "m,  " + fileName + "에 저장되었습니다");
+
+            editor.putFloat("distance", 0);
+            editor.commit();
+
         }
     }
 
     private void updatePart() {
 
-        Log.e(Start.TAG, "GpsCatcher : updatePart_");
         database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
         Cursor cursor = database.rawQuery("Select partCurrentValue,partName,etc FROM " + TABLENAME, null);
 
@@ -518,6 +529,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             Log.d(TAG, "GpsCatcher:updatePart_ " + cursor.getString(1) + "의 값이 " + value + etc + " 로...");
 
         }
+        cursor.close();
     }
 
     public void registerRestartAlarm() {

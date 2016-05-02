@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Calendar;
@@ -23,7 +24,7 @@ public class MyFragment extends Fragment {
     String TAG = Start.TAG;
     static int d = 6;
 
-    private SharedPreferences pref;
+    private SharedPreferences  pref;
     private SharedPreferences.Editor editor;
 
 
@@ -32,8 +33,22 @@ public class MyFragment extends Fragment {
         Log.e(TAG, "--MyFragment--");
         View view = inflater.inflate(R.layout.my_fragment, container, false);
 
+        pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
+
+        int h = pref.getInt("timeHour",10);
+        int m = pref.getInt("timeMinute",0);
+        d = pref.getInt("timeLimit",8);
+
+        EditText H = (EditText) view.findViewById(R.id.HourInput);
+        EditText M = (EditText) view.findViewById(R.id.MinuteInput);
+        EditText D = (EditText) view.findViewById(R.id.DurationInput);
+
+        H.setText(""+h);
+        M.setText(""+m);
+        D.setText("" + d);
 
         Button TakeButton = (Button) view.findViewById(R.id.TakeButton);
+
         TakeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,6 +59,7 @@ public class MyFragment extends Fragment {
                 int h = Integer.parseInt(hinput.getText().toString());
                 int m = Integer.parseInt(minput.getText().toString());
                 d = Integer.parseInt(dinput.getText().toString());
+
                 enrollAlarm(h, m);
 
             }
@@ -54,7 +70,7 @@ public class MyFragment extends Fragment {
 
     private void enrollAlarm(int hour, int minute) {
 
-        pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
+
         editor = pref.edit();
 
         editor.putInt("timeLimit", d);
@@ -84,7 +100,8 @@ public class MyFragment extends Fragment {
         alarmManager.cancel(pendingIntent);
 
 //        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);  //부정확 / 배터리 절약
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);      //정확 / 배터리 소모
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);      //정확 / 배터리 소모
+        alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);      //정확 / 배터리 소모
 
 
         /*

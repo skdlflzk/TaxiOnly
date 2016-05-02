@@ -11,12 +11,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -28,6 +30,9 @@ public class AlarmActivity extends Activity {
     private Button cancelButton;
     static Context context;
     private Vibrator vibrator;
+
+    PowerManager pm;
+    PowerManager.WakeLock wl;
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -36,6 +41,19 @@ public class AlarmActivity extends Activity {
 
 //        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
         setContentView(inflater.inflate(R.layout.activity_alarm, null));
+
+        getWindow().addFlags( WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
+        Log.e(Start.TAG, "AlarmActivity : alarm!");
+
+
+        pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TaxiOnly");
+
+        wl.acquire();
+
+
+
 
 
 //        final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE); // 이게 필요 한가...
@@ -66,8 +84,8 @@ public class AlarmActivity extends Activity {
 
 
 //        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);  //부정확 / 배터리 절약
-            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);      //정확 / 배터리 소모
-
+//            alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);      //정확 / 배터리 소모
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);      //정확 / 배터리 소모
         }
 
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
@@ -82,6 +100,8 @@ public class AlarmActivity extends Activity {
                 ContentResolver res = getContentResolver();
                 boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
 
+                wl.release();
+
                 if(!gpsEnabled){
 
                     Toast.makeText(getApplicationContext(), "GPS 수신기를 먼저 켜주세요", Toast.LENGTH_SHORT).show();
@@ -93,7 +113,7 @@ public class AlarmActivity extends Activity {
 
                 if( Start.getIsWorking(context) == 0) {
 
-                    Log.e(Start.TAG, "MainMenu : alarm! GPS 수집을 시작합니다");
+                    Log.e(Start.TAG, "AlarmActivity : alarm! GPS 수집을 시작합니다");
                     Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
                     Intent intentService = new Intent(context, GpsCatcher.class);
 
@@ -111,6 +131,15 @@ public class AlarmActivity extends Activity {
         });
 
         cancelButton = (Button) findViewById(R.id.cancelButton);
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                wl.release();
+                finish();
+
+            }
+        });
 
         /*
             10 분 뒤에 또 울릴 지 결정
