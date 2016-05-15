@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,9 +56,17 @@ public class HomeFragment extends Fragment implements LocationListener {
         Log.e(TAG, "--HomeFragment--");
 
 
-        latitudeTextView = (TextView) view.findViewById(R.id.latitudeTextview);
-        longitudeTextView = (TextView) view.findViewById(R.id.longitudeTextview);
-        logText = (TextView) view.findViewById(R.id.logText);
+//        latitudeTextView = (TextView) view.findViewById(R.id.latitudeTextview);
+//        longitudeTextView = (TextView) view.findViewById(R.id.longitudeTextview);
+//
+//        logText = (TextView) view.findViewById(R.id.logText);
+
+//        CalendarView calendarView = (CalendarView) view.findViewById(R.id.calendarView);
+//        calendarView.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+//            @Override
+//            public void onSelectedDayChange(CalendarView calendarView, int i, int i1, int i2) {
+//            }
+//        });
 
         locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
         //GPS로부터 위치정보 업데이트를 요청함
@@ -177,13 +186,13 @@ public class HomeFragment extends Fragment implements LocationListener {
 
         Log.e(TAG, "HomeFragment:onLocationChanged_(" + latitude + "), (" + longitude + ")");
 
-        latitudeTextView.setText(String.format("%f", location.getLatitude()));
-        longitudeTextView.setText(String.format("%f", location.getLongitude()));
+//        latitudeTextView.setText(String.format("%f", location.getLatitude()));
+//        longitudeTextView.setText(String.format("%f", location.getLongitude()));
+//
+//        gpsLog = "(" + latitude + "," + longitude + ")\n";
 
-        gpsLog = "(" + latitude + "," + longitude + ")\n";
 
-
-        logText.setText(logText.getText().toString() + gpsLog);
+//        logText.setText(logText.getText().toString() + gpsLog);
 
     }
 

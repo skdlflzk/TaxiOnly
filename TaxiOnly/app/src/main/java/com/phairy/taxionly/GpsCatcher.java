@@ -183,7 +183,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                             Log.d(TAG, "GPSCatcher:onStartCommand_servive 실행 중 - " + t + "초 간격, 실행 후 " + (System.currentTimeMillis() - startTime) / 1000 + "초 경과");
 
-                            if (((System.currentTimeMillis() - startTime) / (3600000) > timeLimit) || trigger ) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s
+                            if (((System.currentTimeMillis() - startTime) / (60000) > timeLimit) || trigger ) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s
 
                                 try {
 
@@ -222,9 +222,10 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                 try {
 
                                     fos = new FileOutputStream(file, true);  //mode_append
+                                    calendar = Calendar.getInstance();
                                     String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">\n" + "<name>fin " +
-                                            String.format("%02d",calendar.get(Calendar.HOUR_OF_DAY)) + ":" +String.format("%02d", calendar.get(Calendar.MINUTE))+
-                                            "</name></wpt>";
+                                            String.format("%02d",calendar.get(Calendar.HOUR_OF_DAY)) + ":" +String.format("%02d", calendar.get(Calendar.MINUTE))+":" +
+                                            String.format("%02d", calendar.get(Calendar.SECOND)) + "</name></wpt>";
                                     fos.write(waypoint.getBytes());
 
                                     String trailer = "</trkseg></trk>\n" + "</gpx>";
@@ -404,6 +405,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         v2 = v3;
         e2 = e3;
 //        v1 = v2; //v1을 저장할 필요가 있나?
+        calendar=Calendar.getInstance();
         String gpsLog = "<trkpt lat=\"" + x2 + "\" lon=\"" + y2 + "\">" +
                 "<desc>" +  String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ":" +String.format("%02d", calendar.get(Calendar.SECOND)) + "</desc></trkpt>\n";
 
@@ -518,9 +520,9 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                 value += Double.parseDouble( String.format( "%.2f", distance ) );  //10m단위 까지
 
-            } else { //             km가 아니면 하루 추가
+            } else { //             km가 아니면 하루 추가...는 여기서는 안하겠음
 
-                value++;
+//                value++;
 
             }
 

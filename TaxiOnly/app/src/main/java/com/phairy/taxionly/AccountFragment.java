@@ -143,7 +143,7 @@ public class AccountFragment extends Fragment {
                         etc = tempString.substring(tail + 1, tempString.length());
 
                         database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue, etc) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 10000 + ", '"+ etc+"')");
+                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue, etc) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 0 + ", '"+ etc+"')");
 
                     } else if (front != -1) { //문자열을 찾은 경우
                         front = front + 3 + moreTen;
@@ -159,7 +159,7 @@ public class AccountFragment extends Fragment {
                         etc = tempString.substring(tail + 1, tempString.length());
 
                         database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue, etc) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 10000 + ", '"+ etc+"')");
+                        database.execSQL("INSERT INTO " + TABLENAME + "(partName, partMaxValue, partCurrentValue, etc) VALUES " + "( '" + partName + "', '" + partMaxValue + "', " + 0 + ", '"+ etc+"')");
 
                         database.close();
                     } else {
@@ -254,12 +254,12 @@ public class AccountFragment extends Fragment {
             partItemView.setPartMaxValue(cursor.getDouble(1), cursor.getString(3));
             partItemView.setPartCurrentValue(cursor.getDouble(2), cursor.getString(3));
 //            partItemView.setProgress(cursor.getInt(1),cursor.getInt(2));
-            ProgressBar progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleHorizontal);
-            progressBar.setIndeterminate(true);
-            progressBar.setVisibility(View.VISIBLE);
+//            ProgressBar progressBar = new ProgressBar(getActivity(), null, android.R.attr.progressBarStyleHorizontal);
+//            progressBar.setIndeterminate(true);
+//            progressBar.setVisibility(View.VISIBLE);
 
-            double percent = Double.valueOf(getPartValue(position))/ Double.valueOf(getPartCurrentValue(position));
-            progressBar.setProgress((int) (percent * 100));
+//            double percent = Double.valueOf(getPartValue(position))/ Double.valueOf(getPartCurrentValue(position));
+//            progressBar.setProgress((int) (percent * 100));
 //            progressBar.setMinimumHeight(10);
 //            progressBar.setProgress(100);
 //            partItemView.addView(progressBar);

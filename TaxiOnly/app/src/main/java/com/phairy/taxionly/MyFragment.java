@@ -37,13 +37,13 @@ public class MyFragment extends Fragment {
 
         int h = pref.getInt("timeHour",10);
         int m = pref.getInt("timeMinute",0);
-        d = pref.getInt("timeLimit",8);
+        d = pref.getInt("timeLimit",480);
 
         EditText H = (EditText) view.findViewById(R.id.HourInput);
         EditText M = (EditText) view.findViewById(R.id.MinuteInput);
         EditText D = (EditText) view.findViewById(R.id.DurationInput);
 
-        H.setText(""+h);
+        H.setText("" + h);
         M.setText(""+m);
         D.setText("" + d);
 
@@ -80,14 +80,25 @@ public class MyFragment extends Fragment {
 
 
         Calendar calendar = Calendar.getInstance();
+
         calendar.setTimeInMillis(System.currentTimeMillis());
+        int now =  calendar.get(Calendar.HOUR_OF_DAY);
+//        calendar.add(Calendar.DATE,1);
         calendar.set(Calendar.HOUR_OF_DAY, hour);   //1~24 범위(아마)
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, 00);
 
         Log.e(Start.TAG, "MyFragment :  enrollAlarm_ 매일 " + hour + "시 " + minute + "분 예약되었습니다");
+        int mm;
+        if( d < 60) {
+            mm = d ;
+            Toast.makeText(getActivity(), hour + "시 " + minute + "분에 " + mm + "분동안 기록합니다", Toast.LENGTH_SHORT).show();
+        }else{
+            mm = d - ( d/60)*60;
+            Toast.makeText(getActivity(), hour + "시 " + minute + "분에 " + d/60 + "시간 " + mm + "분동안 기록합니다", Toast.LENGTH_SHORT).show();
+        }
 
-        Toast.makeText(getActivity(), "기록 시간을 " + hour + "시 " + minute + "분에 " + d + "시간으로 지정했습니다", Toast.LENGTH_SHORT).show();
+
 
         AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(getActivity().ALARM_SERVICE);
         Intent intent2 = new Intent(getActivity(), AlarmActivity.class);
@@ -100,7 +111,7 @@ public class MyFragment extends Fragment {
         alarmManager.cancel(pendingIntent);
 
 //        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);  //부정확 / 배터리 절약
-//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);      //정확 / 배터리 소모
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);      //덜정확 / 배터리 소모
         alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);      //정확 / 배터리 소모
 
 

@@ -58,7 +58,7 @@
         android:layout_alignTop="@+id/MinuteInput"
         android:layout_alignParentStart="true" />
     <EditText
-        android:layout_width="50dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="10"
         android:id="@+id/HourInput"
@@ -70,20 +70,20 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="주행시간"
+        android:text="주행시간(단위:분)"
         android:id="@+id/DurationText"
         android:textSize="23dp"
         android:textColor = "#555555"
         android:layout_alignBottom="@+id/DurationInput" />
     <EditText
-        android:layout_width="30dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="8"
+        android:text="480"
         android:id="@+id/DurationInput"
         android:textSize="23dp"
         android:textColor = "#555555"
         android:layout_centerVertical="true"
-        android:layout_alignStart="@+id/MinuteInput" />
+        android:layout_toEndOf="@+id/MinuteInput" />
     <EditText
         android:layout_width="30dp"
         android:layout_height="wrap_content"

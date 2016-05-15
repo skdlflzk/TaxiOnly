@@ -215,9 +215,13 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog,
                                                     int which) {
-                                    Intent intent = new Intent(
-                                            Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                    startActivity(intent);
+                                    /*
+                                        이렇게 하면 설정창이 켜져있는 상태로 열린다
+                                    Intent intent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    startActivityForResult(intent,0);
+                                    */
+                                    startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
+
                                 }
                             })
                     .setNegativeButton("닫기",

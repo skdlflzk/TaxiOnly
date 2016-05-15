@@ -19,44 +19,6 @@
         android:layout_centerHorizontal="true" />
 
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="위도"
-        android:id="@+id/latitudeText"
-        android:textSize="23dp"
-        android:textColor = "#555555"
-        android:layout_below="@+id/MainText"
-        android:layout_alignParentStart="true" />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="..."
-        android:id="@+id/latitudeTextview"
-        android:textSize="23dp"
-        android:textColor = "#555555"
-        android:layout_alignBottom="@+id/latitudeText"
-        android:layout_toRightOf = "@+id/latitudeText"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="경도"
-        android:id="@+id/longitudeText"
-        android:textSize="23dp"
-        android:textColor = "#555555"
-        android:layout_below="@+id/latitudeText"/>
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="..."
-        android:id="@+id/longitudeTextview"
-        android:textSize="23dp"
-        android:textColor = "#555555"
-        android:layout_alignBottom="@+id/longitudeText"
-        android:layout_toEndOf="@+id/latitudeText" />
-
-
     <Button
         android:id="@+id/TakeButton"
         android:textColor = "#eeeeee"
@@ -87,7 +49,17 @@
         android:id="@+id/logText"
         android:textSize="10dp"
         android:textColor = "#555555"
-        android:layout_below="@+id/longitudeTextview"
-        />
+        android:layout_below="@+id/MainText" />
+
+    <!--
+    <CalendarView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/calendarView"
+        android:layout_below="@+id/logText"
+        android:minDate="01/01/2015"
+        android:weekSeparatorLineColor="#aaaaaa"
+         android:layout_toEndOf="@+id/logText" />
+    -->
 
 </RelativeLayout>
