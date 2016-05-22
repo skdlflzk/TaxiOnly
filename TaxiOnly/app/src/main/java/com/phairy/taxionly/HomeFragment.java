@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -54,7 +55,6 @@ public class HomeFragment extends Fragment implements LocationListener {
         View view = inflater.inflate(R.layout.home_fragment, container, false);
 
         Log.e(TAG, "--HomeFragment--");
-
 
 //        latitudeTextView = (TextView) view.findViewById(R.id.latitudeTextview);
 //        longitudeTextView = (TextView) view.findViewById(R.id.longitudeTextview);

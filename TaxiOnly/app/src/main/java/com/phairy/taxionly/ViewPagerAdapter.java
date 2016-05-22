@@ -19,7 +19,7 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
         fragments[0] = new HomeFragment();
-        fragments[1] = new AccountFragment();
+        fragments[1] = new ListFragment();
         fragments[2] = new MyFragment();
     }
 

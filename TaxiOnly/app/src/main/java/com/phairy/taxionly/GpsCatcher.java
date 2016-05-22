@@ -208,8 +208,6 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
 
 
-
-
                                     locationManager.removeUpdates(locationListener);
                                     locationManager = null;
 

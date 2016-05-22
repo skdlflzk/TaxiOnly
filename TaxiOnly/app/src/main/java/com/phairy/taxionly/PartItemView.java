@@ -57,9 +57,10 @@ public class PartItemView extends LinearLayout {
     public int setProgress(double maxValue, double currentValue){
         double percent = currentValue/maxValue;
 
-        progressBar.setIndeterminate(true);
+//        progressBar.setIndeterminate(true);
         progressBar.setVisibility(View.VISIBLE);
         progressBar.setProgress((int)(percent*100));
+
         return (int)(percent*100);
     }
 

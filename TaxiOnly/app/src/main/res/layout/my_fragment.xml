@@ -64,6 +64,7 @@
         android:id="@+id/HourInput"
         android:textSize="23dp"
         android:textColor = "#555555"
+        android:inputType="number"
         android:layout_alignTop="@+id/MainText"
         android:layout_marginTop="30dp"
         android:layout_centerHorizontal="true" />
@@ -81,6 +82,7 @@
         android:text="480"
         android:id="@+id/DurationInput"
         android:textSize="23dp"
+        android:inputType="number"
         android:textColor = "#555555"
         android:layout_centerVertical="true"
         android:layout_toEndOf="@+id/MinuteInput" />
@@ -93,7 +95,9 @@
         android:textColor = "#555555"
         android:layout_alignTop="@+id/HourInput"
         android:layout_marginTop="70dp"
+        android:inputType="number"
         android:layout_centerHorizontal="true" />
+
     <Button
         android:id="@+id/TakeButton"
         android:textColor = "#eeeeee"

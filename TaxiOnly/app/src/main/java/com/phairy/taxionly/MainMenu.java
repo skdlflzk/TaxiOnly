@@ -75,7 +75,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
             editor.putBoolean("isAlarmEnrolled", true);
             editor.commit();
         }else{
-            Log.d(TAG, "AccountFragment:onCreateView() / is not first");
+            Log.d(TAG, "ListFragment:onCreateView() / is not first");
         }
 */
 
