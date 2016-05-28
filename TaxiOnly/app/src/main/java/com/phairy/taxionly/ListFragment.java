@@ -20,12 +20,18 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import org.apache.log4j.Logger;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 
+
 public class ListFragment extends Fragment {
+
+    private Logger mLogger = Logger.getLogger(ListFragment.class);
+
     SQLiteDatabase database;
     String DATABASENAME = "PART";
     String TABLENAME = "PARTINFO";
@@ -41,19 +47,20 @@ public class ListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.list_fragment, container, false);
 
+        mLogger.error("--ListFragment--");
 
-        Log.e(TAG, "--ListFragment--");
 
         pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
         editor = pref.edit();
 
         boolean isCreated = pref.getBoolean("isCreated", false);
-        if (isCreated == false) {
+        if (!isCreated) {
             initPartData();
             editor.putBoolean("isCreated", true);
-            editor.commit();
+            editor.apply();
         }else{
-            Log.d(TAG, "ListFragment:onCreateView() / is not first");
+            mLogger.error("onCreateView() / is not first");
+
         }
 
 //        getPartData();
@@ -104,8 +111,6 @@ public class ListFragment extends Fragment {
                                                 return;
                                             }
 
-                                            Log.d(TAG, "ListFragment:ListViewClickListener() " + editText1.getText().toString());
-
                                             database = getActivity().openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
                                             database.execSQL("UPDATE " + TABLENAME + " SET partMaxValue = " + Double.parseDouble(String.format("%.2f", m)) + " , partCurrentValue = " + Double.parseDouble(String.format("%.2f", c)) + " WHERE partName = '" + name + "'");
 
@@ -113,11 +118,12 @@ public class ListFragment extends Fragment {
                                             database = null;
                                             classAdapter.notifyDataSetChanged();
 
+                                            mLogger.error("ListViewClickListener_update success");
 
-                                            Log.e(Start.TAG, "button : succ");
+
 
                                         } catch (Exception e) {
-                                            Log.e(Start.TAG, "button : err");
+                                            mLogger.error("ListViewClickListener_update fail");
 
                                         } finally {
 
@@ -142,11 +148,11 @@ public class ListFragment extends Fragment {
                     + "partMaxValue REAL, "
                     + "partCurrentValue REAL, "
                     + "etc text)");
-            Log.d(TAG, "ListFragment:initPartData() / Creating " + TABLENAME + " Success");
 
         } catch (Exception e) {
             e.printStackTrace();
-            Log.e(TAG, "ListFragment:initPartData() / Creating " + TABLENAME + " Failed");
+            mLogger.error("initPartData_ Creating " + TABLENAME + " Failed");
+
         } finally {
             database.close();
             database = null;
@@ -221,17 +227,18 @@ public class ListFragment extends Fragment {
                         //문자열 없음, 다음으로 이동
                         continue;
                     }
-                    Log.d(TAG, "ListFragment:initPartData() / Inserting " + TABLENAME + " Success");
+                    mLogger.debug("initPartData_Inserting " + TABLENAME + " Success");
+
                 }
             } else {
-                Log.e(TAG, "ListFragment:initPartData() / database is null");
+                mLogger.debug("initPartData_database is null");
             }
 
 
         } catch (Exception e) {
             e.printStackTrace();
 
-            Log.e(TAG, "ListFragment:initPartData() / Inserting " + TABLENAME + " Failed");
+            mLogger.debug("initPartData_Inserting " + TABLENAME + " Failed");
 
         } finally {
             database.close();

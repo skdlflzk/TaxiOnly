@@ -24,9 +24,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.apache.log4j.Logger;
+
 import java.util.Calendar;
 
 public class AlarmActivity extends Activity {
+
+    private Logger mLogger = Logger.getLogger(AlarmActivity.class);
+
+
 
     private Button acceptButton;
     private Button cancelButton;
@@ -50,8 +56,8 @@ public class AlarmActivity extends Activity {
         setContentView(inflater.inflate(R.layout.activity_alarm, null));
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+        mLogger.error("--alarm!--");
 
-        Log.e(Start.TAG, "AlarmActivity : alarm!");
 
 
         SQLiteDatabase database;
@@ -83,6 +89,7 @@ public class AlarmActivity extends Activity {
                     value++;
 
                     database.execSQL("UPDATE " + TABLENAME + " SET partCurrentValue = '" + value + "' WHERE partName = '" + cursor.getString(1) + "'");
+
 
                     Log.d(TAG, "GpsCatcher:updatePart_ " + cursor.getString(1) + "의 값이 " + value + etc + " 로...");
 
@@ -119,7 +126,7 @@ public class AlarmActivity extends Activity {
             alarmManager.cancel(pendingIntent);
             Log.e(Start.TAG, "AlarmActivity : alarm 제거됨");
         }catch(Exception e){
-            Log.e(Start.TAG, "AlarmActivity : alarm 제거 에러");
+            mLogger.error(" alarm 제거 에러");
         }
         //
 
@@ -153,9 +160,9 @@ public class AlarmActivity extends Activity {
 
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);      //정확 / 배터리 소모
 
-            Log.e(Start.TAG, "AlarmActivity : "+ hour+"시"+ minute+"분에 alarm 등록 성공");
+            mLogger.error( hour+"시"+ minute+"분에 alarm 등록 성공");
         }catch(Exception e){
-            Log.e(Start.TAG, "AlarmActivity : alarm 등록 에러");
+            mLogger.error("alarm 등록 에러");
         }
         vibrator = (Vibrator) getSystemService(VIBRATOR_SERVICE);
 
@@ -181,8 +188,7 @@ public class AlarmActivity extends Activity {
                 }
 
                 if (Start.getIsWorking(context) == 0) {
-
-                    Log.e(Start.TAG, "AlarmActivity : alarm! GPS 수집을 시작합니다");
+                    mLogger.error("alarm! GPS 수집을 시작합니다");
                     Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
                     Intent intentService = new Intent(context, GpsCatcher.class);
 

@@ -8,8 +8,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class EnrollActivity extends Activity {
+import org.apache.log4j.Logger;
 
+public class EnrollActivity extends Activity {
+	private Logger mLogger = Logger.getLogger(EnrollActivity.class);
 String TAG = Start.TAG;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -25,10 +25,12 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.apache.log4j.Logger;
+
 import java.util.Calendar;
 
 public class MainMenu extends ActionBarActivity implements OnClickListener {
-
+    private Logger mLogger = Logger.getLogger(MainMenu.class);
     Button btn[] = new Button[3];
     ViewPager viewPager = null;
 
@@ -176,7 +178,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
             case KeyEvent.KEYCODE_BACK:
                 vibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                 vibe.vibrate(70);
-                Log.d(Start.TAG, "MainMenu : BACK button down");
+                mLogger.error("BACK button down");
 
                 new AlertDialog.Builder(this).
                         setIcon(android.R.drawable.ic_dialog_alert).
@@ -252,6 +254,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
             }
 
             if( Start.getIsWorking(context) == 0) {
+                mLogger.error("--alarm!--");
                 Log.e(Start.TAG, "MainMenu : alarm! GPS 수집을 시작합니다");
                 Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
                 Intent intentService = new Intent(this, GpsCatcher.class);
@@ -264,41 +267,16 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
                 Toast.makeText(getApplicationContext(), "이미 기록중입니다\n종료 후 다시 시작해주세요", Toast.LENGTH_SHORT).show();
             }
         }else {
-            Log.e(Start.TAG, "MainMenu : 평소 열기");
+            mLogger.info("MainMenu : 평소 열기");
         }
-    }catch (Exception e){
-        Log.e(Start.TAG, "MainMenu : putExtra 오류");
+    }catch (Exception e) {
+            mLogger.error("putExtra 오류");
     }
 
     }
 
-    /*
-    private void enrollAlarm(int hour, int minute) {
-
-        long now = System.currentTimeMillis();
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(System.currentTimeMillis());
-        calendar.set(Calendar.HOUR_OF_DAY, hour);   //1~24 범위(아마)
-        calendar.set(Calendar.MINUTE, minute);
-        calendar.set(Calendar.SECOND, 0);
-
-        Log.e(Start.TAG, "MainMenu :  enrollAlarm_"+ hour + "시 " +minute+"분 예약되었습니다");
-//        if(now-calendar.getTime()) {
-//            return;
-//        }
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent2 = new Intent(getApplicationContext(), NotificationBroadcast.class);
-        intent2.putExtra("flag", 1000);
-        // intent2.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent2, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
-
-//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+10000, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
-//        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+1000*60*60*24, AlarmManager.INTERVAL_DAY, pendingIntent);//1000==1초 1000*60*60*24//하루 뒤에 시작!
-
+    public void forceCrash(View view) {
+        throw new RuntimeException("This is a crash");
     }
-    */
+
 }

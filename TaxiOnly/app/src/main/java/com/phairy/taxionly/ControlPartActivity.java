@@ -25,9 +25,12 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
+import org.apache.log4j.Logger;
+
 import java.util.Calendar;
 
 public class ControlPartActivity extends AppCompatActivity {
+    private Logger mLogger = Logger.getLogger(ControlPartActivity.class);
 
         private Button acceptButton;
         private Button cancelButton;

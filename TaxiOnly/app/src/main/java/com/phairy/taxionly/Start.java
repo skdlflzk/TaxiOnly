@@ -12,8 +12,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import org.apache.log4j.Logger;
+
 
 public class Start extends Activity {
+
+    private Logger mLogger = Logger.getLogger(Start.class);
 
     int firstExecute ;
     static String TAG = "TaxiOnly";

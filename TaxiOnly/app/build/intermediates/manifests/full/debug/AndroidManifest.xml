@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.phairy.taxionly"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="19"
+        android:targetSdkVersion="22" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_GPS" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <application
+        android:name="com.phairy.taxionly.TaxionlyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="com.phairy.taxionly.Start"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleInstance" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="com.phairy.taxionly.MainMenu" />
+
+        <service
+            android:name="com.phairy.taxionly.GpsCatcher"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name="com.phairy.taxionly.NotificationBroadcast"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity
+            android:name="com.phairy.taxionly.AlarmActivity"
+            android:theme="@android:style/Theme.Dialog" />
+        <activity
+            android:name="com.phairy.taxionly.ControlPartActivity"
+            android:label="@string/title_activity_control_part"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="a60ad3f6852e69d61a3ed9d40493ad9c3d2866e6" />
+    </application>
+
+</manifest>

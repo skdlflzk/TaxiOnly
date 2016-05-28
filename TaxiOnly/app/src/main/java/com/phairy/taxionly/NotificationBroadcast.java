@@ -7,13 +7,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import android.content.IntentFilter;
+import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+import org.apache.log4j.Logger;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Calendar;
 
 public class NotificationBroadcast extends BroadcastReceiver {
 
 //    static Context mContext;
-
+private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
 
     String TAG = Start.TAG;
 
@@ -29,7 +37,7 @@ public class NotificationBroadcast extends BroadcastReceiver {
 //        mContext = context;
         int flag = intent.getIntExtra("flag", 0);
 
-        Log.e(TAG, "NotificationBroadcast: onReceive_");
+        Log.e(TAG, "NotificationBroadcast: onReceive_ ..." + flag);
 
         if (flag == 2000) {  // 서비스가 강종이 되었을 경우
             Log.e(TAG, "NotificationBroadcast: onReceive_강제종료...service 재시작");
@@ -45,7 +53,36 @@ public class NotificationBroadcast extends BroadcastReceiver {
             context.startActivity(mIntent);
 
 //            setNotification(context, 0);
+        } else if( flag == 44){
+            try {
+                String mSdPath;
 
+                String ext = Environment.getExternalStorageState();
+                if (ext.equals(Environment.MEDIA_MOUNTED)) {
+                    mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+                } else {
+                    mSdPath = Environment.MEDIA_UNMOUNTED;
+                }
+
+                File file = new File(mSdPath + "/TaxiOnly/alert.txt");  //파일 생성!
+                FileOutputStream fos = new FileOutputStream(file, true);  //mode_append
+
+                Calendar calendar = Calendar.getInstance();
+
+                String contents = "경찰발견-" + String.format("%02d",calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d",calendar.get(Calendar.DAY_OF_MONTH)) +
+                        " " + String.format("%02d",calendar.get(Calendar.HOUR_OF_DAY)) + ":" +String.format("%02d", calendar.get(Calendar.MINUTE));
+
+                if (GpsCatcher.getLocation() != null) {
+                    contents += "" + GpsCatcher.getLocation().getLatitude() + ", " + GpsCatcher.getLocation().getLatitude() + ")" + System.lineSeparator();
+                } else {
+                    contents += System.lineSeparator();
+                }
+                fos.write(contents.getBytes());
+                fos.close();
+
+            } catch (Exception e) {
+                Log.e("taxionly", "TempBroadcastReceiver: onRecieve Error");
+            }
         }
 
     }
@@ -77,10 +114,10 @@ public class NotificationBroadcast extends BroadcastReceiver {
         if (state == 0) {
             intent.putExtra("flag", 1000);  //클릭하면 서비스를 실행한다
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
-        } else if(state == 3){
+        } else if (state == 3) {
             intent.putExtra("flag", 4444);  //서비스가 죽었다 누르면 가계부를 작성하러감
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
-        }  else {
+        } else {
             intent.putExtra("flag", 0);
             vi[0] = 0;
             vi[1] = 0;
@@ -89,7 +126,6 @@ public class NotificationBroadcast extends BroadcastReceiver {
         PendingIntent pi = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
 
 
-        builder.setContentIntent(pi);
 //        builder.addAction(R.drawable.notification_template_icon_bg, "C", pi);
 //        builder.setVibrate(vi); //노티가 등록될 때 진동 패턴 1초씩 두번.
 
@@ -100,15 +136,23 @@ public class NotificationBroadcast extends BroadcastReceiver {
             builder.addAction(R.drawable.notification_template_icon_bg, "운행 시작!", pi);
             flag = Notification.FLAG_AUTO_CANCEL;
 
+            //여기는 이제 안옴
+
         } else if (state == 1) {
             tickText = "";
             flag = Notification.FLAG_NO_CLEAR;
 
         } else if ( state == 2 ) {
+
             tickText = "운행 중 입니다 오늘도 안전운전 되세요!";
-//        builder.addAction(R.drawable.notification_template_icon_bg, "가계부 작성하기", pi);
-//            builder.addAction(R.drawable.notification_template_icon_bg, "", pi);
+
+            Intent mintent = new Intent(context, NotificationBroadcast.class);
+            mintent.putExtra("flag",44);
+            PendingIntent dynamicBroad = PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(), mintent, 0);
+            builder.addAction(R.drawable.notification_template_icon_bg, "경찰 주의!", dynamicBroad);
+
             flag = Notification.FLAG_NO_CLEAR;
+
 
         } else if( state == 3 ) {
 
@@ -118,6 +162,8 @@ public class NotificationBroadcast extends BroadcastReceiver {
 //            builder.addAction(R.drawable.notification_template_icon_bg, "", pi);
             flag = Notification.FLAG_AUTO_CANCEL;
         }
+
+        builder.setContentIntent(pi);
         builder.setContentText(tickText).setSmallIcon(R.drawable.gon);
 
         Notification notification = builder.build();
@@ -126,5 +172,6 @@ public class NotificationBroadcast extends BroadcastReceiver {
         notificationManager.notify(0, notification);
 
     }
+
 
 }

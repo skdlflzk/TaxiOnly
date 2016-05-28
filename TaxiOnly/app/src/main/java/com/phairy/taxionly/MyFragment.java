@@ -17,10 +17,14 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.apache.log4j.Logger;
+
 import java.util.Calendar;
 
 
 public class MyFragment extends Fragment {
+    private Logger mLogger = Logger.getLogger(MyFragment.class);
+
     String TAG = Start.TAG;
     static int d = 6;
 

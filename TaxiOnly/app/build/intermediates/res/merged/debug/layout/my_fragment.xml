@@ -1,0 +1,115 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000"
+   tools:context=".start"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp"
+    android:id ="@+id/rid">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="마이페이지"
+        android:id="@+id/MainText"
+        android:textSize="23dp"
+        android:textColor = "#AAAAAA"
+        android:layout_marginTop="58dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+    <!--
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="내 ID"
+        android:id="@+id/IDText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_above="@+id/PWText"
+        android:layout_toEndOf="@+id/MinuteText" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="내 모델"
+        android:id="@+id/PWText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignTop="@+id/MainText"
+        android:layout_alignStart="@+id/MinuteText" />
+    -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="시작 시간"
+        android:id="@+id/HourText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignTop="@+id/HourInput"
+        android:layout_alignParentStart="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="분"
+        android:id="@+id/MinuteText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignTop="@+id/MinuteInput"
+        android:layout_alignParentStart="true" />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10"
+        android:id="@+id/HourInput"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:inputType="number"
+        android:layout_alignTop="@+id/MainText"
+        android:layout_marginTop="30dp"
+        android:layout_centerHorizontal="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="주행시간(단위:분)"
+        android:id="@+id/DurationText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignBottom="@+id/DurationInput" />
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="480"
+        android:id="@+id/DurationInput"
+        android:textSize="23dp"
+        android:inputType="number"
+        android:textColor = "#555555"
+        android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/MinuteInput" />
+    <EditText
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:text="0"
+        android:id="@+id/MinuteInput"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignTop="@+id/HourInput"
+        android:layout_marginTop="70dp"
+        android:inputType="number"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/TakeButton"
+        android:textColor = "#eeeeee"
+        android:background="#222222"
+        android:layout_width="120dp"
+        android:layout_height="35dp"
+        android:textSize="13dp"
+        android:text="알람 저장"
+        android:layout_below="@+id/DurationInput"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop ="50dp"
+        />
+
+
+</RelativeLayout>
