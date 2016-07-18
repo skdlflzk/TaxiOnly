@@ -5,13 +5,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="${relativePackage}.${activityClass}" >
-    <Button
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="Force Crash!"
-        android:onClick="forceCrash"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -25,16 +18,26 @@
             android:layout_weight="1"
             android:text="홈"
             style="@style/Widget.AppCompat.ActionButton"/>
+
         <Button
             android:id="@+id/btn_b"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="커뮤니티"
+            style="@style/Widget.AppCompat.ActionButton"/>
+
+        <Button
+            android:id="@+id/btn_c"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="교체주기"
             style="@style/Widget.AppCompat.ActionButton"/>
 
+
         <Button
-            android:id="@+id/btn_c"
+            android:id="@+id/btn_d"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

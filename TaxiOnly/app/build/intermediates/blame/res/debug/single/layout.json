@@ -1,11 +1,15 @@
 [
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_layout.xml",
-        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_list_menu_item_layout.xml"
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\community_fragment.xml",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\community_fragment.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\main_menu.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\main_menu.xml"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_layout.xml",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_list_menu_item_layout.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_alert_dialog_material.xml",
@@ -64,12 +68,12 @@
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_action_bar_up_container.xml"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_main.xml",
-        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\activity_main.xml"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_alarm.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\activity_alarm.xml"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_main.xml",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\activity_main.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_item_header.xml",
@@ -112,6 +116,10 @@
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\22.2.1\\res\\layout\\design_navigation_menu.xml"
     },
     {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\household_chart_layout.xml",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\household_chart_layout.xml"
+    },
+    {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_part_chronometer.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\notification_template_part_chronometer.xml"
     },
@@ -134,10 +142,6 @@
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_list_menu_item_checkbox.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_list_menu_item_checkbox.xml"
-    },
-    {
-        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\account_fragment.xml",
-        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\account_fragment.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\select_dialog_multichoice_material.xml",
@@ -176,12 +180,12 @@
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\content_control_part.xml"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_select_dialog_material.xml",
-        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_select_dialog_material.xml"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\layout_tab_text.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\design\\22.2.1\\res\\layout\\layout_tab_text.xml"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\abc_select_dialog_material.xml",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_select_dialog_material.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\layout_snackbar_include.xml",

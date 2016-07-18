@@ -54,8 +54,7 @@ public class ControlPartActivity extends AppCompatActivity {
 
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
-            Log.e(Start.TAG, "AlarmActivity : alarm!");
-
+            mLogger.error(Start.TAG+":AlarmActivity : alarm!");
 
             SQLiteDatabase database;
             String DATABASENAME = "PART";

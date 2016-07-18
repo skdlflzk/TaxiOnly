@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.ACCESS_GPS" />
     <uses-permission android:name="android.permission.ACCESS_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -58,6 +59,16 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="a60ad3f6852e69d61a3ed9d40493ad9c3d2866e6" />
+
+        <receiver
+            android:name="com.phairy.taxionly.WifiReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter android:priority="100" >
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.intent.action.ACTION_POWER_CONNECTED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

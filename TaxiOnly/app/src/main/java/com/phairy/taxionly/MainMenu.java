@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -31,11 +32,12 @@ import java.util.Calendar;
 
 public class MainMenu extends ActionBarActivity implements OnClickListener {
     private Logger mLogger = Logger.getLogger(MainMenu.class);
-    Button btn[] = new Button[3];
+    Button btn[] = new Button[4];
     ViewPager viewPager = null;
 
     int p = 0;    //페이지번호
     int v = 1;    //화면 전환 뱡향
+
     Vibrator vibe;
     static Context context;
     private SharedPreferences pref;
@@ -46,8 +48,10 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         context = this;
+
         enableGPSSetting();
 
         //viewPager
@@ -59,81 +63,13 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
         btn[0] = (Button) findViewById(R.id.btn_a);
         btn[1] = (Button) findViewById(R.id.btn_b);
         btn[2] = (Button) findViewById(R.id.btn_c);
+        btn[3] = (Button) findViewById(R.id.btn_d);
 
         for (int i = 0; i < btn.length; i++) {
             btn[i].setOnClickListener(this);
         }
 
-
-/*
-        pref = getSharedPreferences("pref", Context.MODE_PRIVATE);
-        editor = pref.edit();
-
-        boolean isAlarmEnrolled = pref.getBoolean("isAlarmEnrolled", false);
-        if (isAlarmEnrolled == false) {
-            Log.e(TAG, "MainManu:onCreate_first excute");
-
-            enrollAlarm(20,22);
-            editor.putBoolean("isAlarmEnrolled", true);
-            editor.commit();
-        }else{
-            Log.d(TAG, "ListFragment:onCreateView() / is not first");
-        }
-*/
-
        handleIntentFlag(getIntent());       //intent flag에 따른 처리( gps ON, 가계부 시작 등 )
-
-
-//        handler = new Handler() {
-//
-//
-//            public void handleMessage(android.os.Message msg) {
-//
-//                btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-//
-//                if( v == 0){
-//                    if( p == 0 ){
-//                        p = 3;
-//                    }else{
-//                        p--;
-//                    }
-//                    viewPager.setCurrentItem(p);
-//                }else if ( v == 1 ){
-//                    if( p == 2 ){
-//                        p = 0;
-//                    }else{
-//                        p++;
-//                    }
-//                    viewPager.setCurrentItem(p);
-//                }else{
-//                    //여기 왜옴
-//                }
-//
-//                btn[p].setBackgroundColor(Color.parseColor("#ddaa5533"));
-//            }
-//        };
-
-//        thread = new Thread(){
-//            //run은 jvm이 쓰레드를 채택하면, 해당 쓰레드의 run메서드를 수행한다.
-//            public void run() {
-//                super.run();
-//                while(true){
-//                    try {
-//                        Thread.sleep(4000);
-//                        handler.sendEmptyMessage(0);
-//                    } catch (InterruptedException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                    }
-//
-//
-//                }
-//            }
-//        };
-//        thread.start();
-
-
-
 
     }
 
@@ -143,14 +79,14 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
         switch (v.getId()) {
             case R.id.btn_a:
 				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-				p = 0;
-				btn[p].setBackgroundColor(Color.parseColor("#bbbbbb"));
+                p = 0;
+                btn[p].setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(0);
 
                 break;
 
             case R.id.btn_b:
-				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+                btn[p].setBackgroundColor(Color.parseColor("#00000000"));
 				p = 1;
 				v.setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(1);
@@ -163,7 +99,13 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
                 viewPager.setCurrentItem(2);
 
                 break;
+            case R.id.btn_d:
+                btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+                p = 3;
+                v.setBackgroundColor(Color.parseColor("#bbbbbb"));
+                viewPager.setCurrentItem(3);
 
+                break;
             default:
                 break;
 
@@ -275,8 +217,5 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 
     }
 
-    public void forceCrash(View view) {
-        throw new RuntimeException("This is a crash");
-    }
 
 }

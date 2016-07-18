@@ -212,10 +212,13 @@
     <item name="action_bar_spinner" type="id"/>
     <item name="action_menu_divider" type="id"/>
     <item name="action_menu_presenter" type="id"/>
+    <item name="dataBinding" type="id"/>
     <item name="home" type="id"/>
+    <item name="onAttachStateChangeListener" type="id"/>
     <item name="progress_circular" type="id"/>
     <item name="progress_horizontal" type="id"/>
     <item name="split_action_bar" type="id"/>
+    <item name="textWatcher" type="id"/>
     <item name="up" type="id"/>
     <item name="view_offset_helper" type="id"/>
     <integer name="abc_config_activityDefaultDur">220</integer>
@@ -244,7 +247,7 @@
     <string name="action_settings">Settings</string>
     <string name="app_name">TaxiOnly</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
-    <string name="com.crashlytics.android.build_id" ns1:ignore="UnusedResources,TypographyDashes" translatable="false">a7e467ea-e4cd-4c41-b8dc-3044d6a3039f</string>
+    <string name="com.crashlytics.android.build_id" ns1:ignore="UnusedResources,TypographyDashes" translatable="false">a7ba56b7-159b-4efc-b9d4-40f28370708a</string>
     <string name="hello_world">Hello world!</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="title_activity_control_part">ControlPartActivity</string>
@@ -1444,6 +1447,10 @@
     <style name="ThemeOverlay.AppCompat.Dark" parent="Base.ThemeOverlay.AppCompat.Dark"/>
     <style name="ThemeOverlay.AppCompat.Dark.ActionBar" parent="Base.ThemeOverlay.AppCompat.Dark.ActionBar"/>
     <style name="ThemeOverlay.AppCompat.Light" parent="Base.ThemeOverlay.AppCompat.Light"/>
+    <style name="WebView">
+          <item name="colorPrimary">#ff7474</item>
+          <item name="colorPrimaryDark">#ff6969</item>
+    </style>
     <style name="Widget.AppCompat.ActionBar" parent="Base.Widget.AppCompat.ActionBar">
     </style>
     <style name="Widget.AppCompat.ActionBar.Solid" parent="Base.Widget.AppCompat.ActionBar.Solid">

@@ -1,0 +1,291 @@
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="124dp"
+        android:background="@drawable/border"
+        android:orientation="vertical"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/day"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="날짜"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="0.03"
+            android:orientation="horizontal" >
+
+
+            <EditText
+                android:id="@+id/distanceEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:gravity="center"
+                android:visibility="invisible"
+                android:layout_gravity="end|center_vertical" />
+
+            <TextView
+                android:id="@+id/distanceCaption"
+                android:layout_width="168dp"
+                android:layout_height="wrap_content"
+                android:text="운행 거리"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="start|center_vertical" />
+
+            <TextView
+                android:layout_width="212dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:id="@+id/distanceText"
+                android:gravity="center"
+                android:layout_gravity="end|center_vertical" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_weight="0.03"
+            android:orientation="horizontal" >
+
+
+            <EditText
+                android:id="@+id/clientEdit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:gravity="center"
+                android:visibility="invisible"
+                android:layout_gravity="end|center_vertical" />
+
+            <TextView
+                    android:id="@+id/clientCaption"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="손님 수"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="start|center_vertical" />
+
+            <TextView
+                android:layout_width="212dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center"
+                android:id="@+id/clientText"
+                android:layout_gravity="end|center_vertical" />
+        </FrameLayout>
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_weight="0.03"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:gravity="center"
+            android:visibility="invisible"
+            android:id="@+id/incomeEdit"
+            android:ems="10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical" />
+
+        <TextView
+            android:id="@+id/incomeCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="오늘의 수익"
+
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_gravity="left|center_vertical" />
+
+        <TextView
+            android:layout_width="212dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center"
+            android:id="@+id/incomeText"
+            android:layout_gravity="right|center_vertical" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.03"
+        android:orientation="horizontal" >
+
+        <EditText
+            android:gravity="center"
+            android:visibility="invisible"
+            android:id="@+id/spendingEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:layout_gravity="right|center_vertical" />
+
+        <TextView
+            android:id="@+id/spendingCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="오늘의 총 지출"
+
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_gravity="left|center_vertical" />
+
+        <TextView
+            android:layout_width="212dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center"
+            android:id="@+id/spendingText"
+            android:layout_gravity="right|center_vertical" />
+    </FrameLayout>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+        android:weightSum="1"
+        android:gravity="right"
+        >
+
+        <FrameLayout
+        android:layout_width="198dp"
+        android:layout_height="30dp"
+        android:layout_gravity="right"
+        android:orientation="horizontal" >
+
+            <EditText
+                android:gravity="center"
+                android:visibility="invisible"
+                android:id="@+id/gasEdit"
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="8"
+                android:layout_gravity="right|center_vertical" />
+
+            <TextView
+                android:id="@+id/gasCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="유류비"
+
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="left|center_vertical" />
+
+            <TextView
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center"
+                android:id="@+id/gasText"
+                android:layout_gravity="right|center_vertical" />
+        </FrameLayout>
+        <FrameLayout
+            android:layout_width="198dp"
+            android:layout_height="30dp"
+            android:layout_gravity="right"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:gravity="center"
+                android:visibility="invisible"
+                android:layout_width="112dp"
+                android:id="@+id/foodEdit"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.37"
+                android:layout_gravity="right|center_vertical" />
+
+            <TextView
+                android:id="@+id/foodCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="식비"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="left|center_vertical" />
+
+            <TextView
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center"
+                android:id="@+id/foodText"
+                android:layout_gravity="right|center_vertical" />
+        </FrameLayout>
+    </LinearLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.03"
+        android:orientation="horizontal" >
+
+        <TextView
+            android:id="@+id/netgainCaption"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="오늘의 순이익"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:layout_gravity="left|center_vertical" />
+
+        <EditText
+            android:visibility="invisible"
+            android:gravity="center"
+            android:id="@+id/netGainEdit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:layout_gravity="right|center_vertical" />
+
+        <TextView
+            android:layout_width="112dp"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:gravity="center"
+            android:id="@+id/netGainText"
+            android:layout_gravity="right|center_vertical" />
+    </FrameLayout>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.03"
+        android:orientation="horizontal" >
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="수정"
+            android:visibility="invisible"
+            android:id="@+id/edit"
+            android:onClick="onEditClicked" />
+
+        <Button
+            android:layout_width="85dp"
+            android:layout_height="wrap_content"
+            android:text="확인"
+            android:id="@+id/confirm"
+            android:layout_gravity="right|top"
+            android:onClick="onConfirmClicked" />
+    </FrameLayout>
+
+
+</LinearLayout>
+</layout>

@@ -12,14 +12,15 @@ public class ViewPagerAdapter extends FragmentStatePagerAdapter {
 	 * Activity중에서도 ActionBarActivity에서 얻어와야한다.
 	 */
 
-    Fragment[] fragments = new Fragment[3];
+    Fragment[] fragments = new Fragment[4];
 
 
     public ViewPagerAdapter(FragmentManager fm) {
         super(fm);
         fragments[0] = new HomeFragment();
-        fragments[1] = new ListFragment();
-        fragments[2] = new MyFragment();
+        fragments[1] = new CommunityFragment();
+        fragments[2] = new ListFragment();
+        fragments[3] = new MyFragment();
     }
 
     //아래의 메서드들의 호출 주체는 ViewPager이다.

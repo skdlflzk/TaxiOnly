@@ -21,8 +21,8 @@ public class Start extends Activity {
 
     int firstExecute ;
     static String TAG = "TaxiOnly";
-    static String URL = "http://192.168.0.15:8080/";
-    static String SURL = "https://192.168.0.15:8080/";
+    static String URL = "http://taxionly-133123.appspot.com";
+    static String SURL = "https://taxionly-133123.appspot.com";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -8,14 +8,16 @@ import com.loopj.android.http.RequestParams;
  */
 public class AsyncHttpSet {
 
+    AsyncHttpResponseHandler responseHandler;
+
     public AsyncHttpSet(Boolean b) {
-        if (b == true){
+        if (b == true) {
             final String BASE_URL = Start.SURL;
-        }else{
+        } else {
             final String BASE_URL = Start.URL;
         }
-
     }
+
     private static final String BASE_URL = Start.URL;
 
     private static com.loopj.android.http.AsyncHttpClient client = new com.loopj.android.http.AsyncHttpClient();
@@ -31,4 +33,6 @@ public class AsyncHttpSet {
     private static String getAbsoluteUrl(String relativeUrl) {
         return BASE_URL + relativeUrl;
     }
+
+
 }

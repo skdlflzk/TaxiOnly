@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -53,13 +54,13 @@ public class ListFragment extends Fragment {
         pref = getActivity().getSharedPreferences("pref", Context.MODE_PRIVATE);
         editor = pref.edit();
 
-        boolean isCreated = pref.getBoolean("isCreated", false);
+        boolean isCreated = pref.getBoolean("partCreated", false);
         if (!isCreated) {
             initPartData();
-            editor.putBoolean("isCreated", true);
+            editor.putBoolean("partCreated", true);
             editor.apply();
         }else{
-            mLogger.error("onCreateView() / is not first");
+            mLogger.error("onCreateView() / part init is not first");
 
         }
 
@@ -82,11 +83,18 @@ public class ListFragment extends Fragment {
                 LayoutInflater layoutInflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 final View layout = layoutInflater.inflate(R.layout.adjust_dialog, null);
 
-                EditText editText1 = (EditText) layout.findViewById(R.id.editText1);
+                final EditText editText1 = (EditText) layout.findViewById(R.id.editText1);
                 EditText editText2 = (EditText) layout.findViewById(R.id.editText2);
                 editText1.setText( String.valueOf((int)cValue));
                 editText2.setText( String.valueOf((int)mValue) );
 
+                Button reset = (Button) layout.findViewById(R.id.resetButton);
+                reset.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        editText1.setText( String.valueOf(0) );
+                    }
+                });
                 new AlertDialog.Builder(getActivity())
                         .setTitle(name)
                         .setView(layout)

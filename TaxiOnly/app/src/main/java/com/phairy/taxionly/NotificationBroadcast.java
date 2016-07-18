@@ -7,10 +7,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.os.BatteryManager;
 import android.os.Environment;
+import android.os.Handler;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import org.apache.log4j.Logger;
 
@@ -44,6 +50,7 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             Intent mIntent = new Intent(context, GpsCatcher.class);
             context.startService(mIntent);
 
+            return ;
         } else if (flag == 1000) {  //flag == 1000이면 정상 시작
             Log.e(TAG, "NotificationBroadcast: onReceive_알람! service 시작 요청");
             Intent mIntent = new Intent(context, AlarmActivity.class);
@@ -53,36 +60,137 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             context.startActivity(mIntent);
 
 //            setNotification(context, 0);
-        } else if( flag == 44){
+            return ;
+        } else if( flag == 44){         //경찰 발견!
+
+            try{
+                Intent it = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+                context.sendBroadcast(it);
+
+            }catch (Exception e){
+
+            }
             try {
-                String mSdPath;
 
-                String ext = Environment.getExternalStorageState();
-                if (ext.equals(Environment.MEDIA_MOUNTED)) {
-                    mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-                } else {
-                    mSdPath = Environment.MEDIA_UNMOUNTED;
+
+                mLogger.debug("NotificationBroadcast: onReceive_전송 중...");
+                AsyncHttpSet asyncHttpSet = new AsyncHttpSet(true);
+
+                RequestParams params = new RequestParams();
+
+                if(GpsCatcher.getLocation() != null){
+                    double lat = GpsCatcher.getLocation().getLatitude();
+                    double lon = GpsCatcher.getLocation().getLongitude();
+                    params.put("CODE", "1");  //경찰 코드
+                    params.put("LAT", lat);
+                    params.put("LON", lon);
+                    params.put("FAPP", "true");
+
+                }else{
+                    mLogger.error("NotificationBroadcast: 위치 정보 없음, 전송 실패");
+                     return;
                 }
 
-                File file = new File(mSdPath + "/TaxiOnly/alert.txt");  //파일 생성!
-                FileOutputStream fos = new FileOutputStream(file, true);  //mode_append
+                asyncHttpSet.post("", params, new AsyncHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int i, cz.msebera.android.httpclient.Header[] headers, byte[] bytes) {
+//                        Toast.makeText(context.getApplicationContext(), "",Toast.LENGTH_SHORT);
 
-                Calendar calendar = Calendar.getInstance();
+                        mLogger.info("NotificationBroadcast: onReceive_전송 성공");
 
-                String contents = "경찰발견-" + String.format("%02d",calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d",calendar.get(Calendar.DAY_OF_MONTH)) +
-                        " " + String.format("%02d",calendar.get(Calendar.HOUR_OF_DAY)) + ":" +String.format("%02d", calendar.get(Calendar.MINUTE));
+                        String ticker = "서버에 전송했습니다";
 
-                if (GpsCatcher.getLocation() != null) {
-                    contents += "" + GpsCatcher.getLocation().getLatitude() + ", " + GpsCatcher.getLocation().getLatitude() + ")" + System.lineSeparator();
-                } else {
-                    contents += System.lineSeparator();
-                }
-                fos.write(contents.getBytes());
-                fos.close();
+
+                        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                                .setSmallIcon(R.drawable.gon)
+                                .setTicker(ticker);
+
+                        notificationManager.notify(1, mBuilder.build());
+
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                                notificationManager.cancel(1);
+                            }
+                        }, 2000);
+
+                        return ;
+
+                    }
+
+                    @Override
+                    public void onFailure(int i, cz.msebera.android.httpclient.Header[] headers, byte[] bytes, Throwable throwable) {
+//                        Toast.makeText(context.getApplicationContext(), "전송 실패 다시 시도해주세요",Toast.LENGTH_SHORT);
+                        mLogger.error("NotificationBroadcast: onReceive_전송 실패");
+                        String ticker = "전송하지 못했습니다";
+
+
+                        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+                        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                                .setSmallIcon(R.drawable.gon)
+                                .setTicker(ticker);
+
+                        notificationManager.notify(1, mBuilder.build());
+
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+
+                            @Override
+                            public void run() {
+                                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                                notificationManager.cancel(1);
+                            }
+                        }, 2000);
+
+
+                        try {
+                            String mSdPath;
+
+                            String ext = Environment.getExternalStorageState();
+                            if (ext.equals(Environment.MEDIA_MOUNTED)) {
+                                mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+                            } else {
+                                mSdPath = Environment.MEDIA_UNMOUNTED;
+                            }
+
+
+                            File file = new File(mSdPath + "/TaxiOnly/alert.txt");  //파일 생성!
+                            FileOutputStream fos = new FileOutputStream(file, true);  //mode_append
+
+                            Calendar calendar = Calendar.getInstance();
+
+                            String contents = "경찰발견-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) +
+                                    " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE));
+
+                            if (GpsCatcher.getLocation() != null) {
+                                contents += "" + GpsCatcher.getLocation().getLatitude() + ", " + GpsCatcher.getLocation().getLatitude() + ")" + System.lineSeparator();
+                            } else {
+                                contents += System.lineSeparator();
+                            }
+
+                            fos.write(contents.getBytes());
+                            fos.close();
+
+                        }catch (Exception e){
+
+                        }
+                        return ;
+                    }
+                });
+
 
             } catch (Exception e) {
-                Log.e("taxionly", "TempBroadcastReceiver: onRecieve Error");
+                mLogger.error("NotificationBroadcast: onReceive_전송 실패_unhandled ERROR");
+                return ;
             }
+
+
         }
 
     }
@@ -105,6 +213,7 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
 
         Intent intent = new Intent(context, Start.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
 
 //        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
@@ -147,7 +256,8 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             tickText = "운행 중 입니다 오늘도 안전운전 되세요!";
 
             Intent mintent = new Intent(context, NotificationBroadcast.class);
-            mintent.putExtra("flag",44);
+            mintent.putExtra("flag", 44);
+
             PendingIntent dynamicBroad = PendingIntent.getBroadcast(context, (int) System.currentTimeMillis(), mintent, 0);
             builder.addAction(R.drawable.notification_template_icon_bg, "경찰 주의!", dynamicBroad);
 
