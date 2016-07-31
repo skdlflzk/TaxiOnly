@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Calendar;
+import java.util.HashMap;
 
 public class NotificationBroadcast extends BroadcastReceiver {
 
@@ -70,8 +71,8 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             }catch (Exception e){
 
             }
-            try {
 
+            try {
 
                 mLogger.debug("NotificationBroadcast: onReceive_전송 중...");
                 AsyncHttpSet asyncHttpSet = new AsyncHttpSet(true);
@@ -196,7 +197,7 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
     }
 
 
-    static public void setNotification(Context context, int state) {
+    static public void setNotification(Context context, int state, HashMap data) {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -251,7 +252,7 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             tickText = "";
             flag = Notification.FLAG_NO_CLEAR;
 
-        } else if ( state == 2 ) {
+        } else if ( state == 2 ) { // 운행 중 표시
 
             tickText = "운행 중 입니다 오늘도 안전운전 되세요!";
 
@@ -264,13 +265,18 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             flag = Notification.FLAG_NO_CLEAR;
 
 
-        } else if( state == 3 ) {
+        } else if( state == 3 ) {   // 시간 도달 정상 종료
 
             tickText = "운행이 종료되었습니다";
+
+            intent = new Intent(context, HouseholdChartActivity.class);
+            intent.putExtra("Hashmap",GpsCatcher.getDada());
+            pi = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
 
             builder.addAction(R.drawable.notification_template_icon_bg, "가계부 작성하기", pi);
 //            builder.addAction(R.drawable.notification_template_icon_bg, "", pi);
             flag = Notification.FLAG_AUTO_CANCEL;
+
         }
 
         builder.setContentIntent(pi);

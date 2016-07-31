@@ -245,15 +245,6 @@
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:layout_gravity="left|center_vertical" />
 
-        <EditText
-            android:visibility="invisible"
-            android:gravity="center"
-            android:id="@+id/netGainEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:layout_gravity="right|center_vertical" />
-
         <TextView
             android:layout_width="112dp"
             android:layout_height="wrap_content"

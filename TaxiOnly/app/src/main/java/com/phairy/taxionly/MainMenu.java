@@ -190,7 +190,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 
                 Toast.makeText(getApplicationContext(), "GPS 수신기를 먼저 켜주세요", Toast.LENGTH_SHORT).show();
 
-                NotificationBroadcast.setNotification(getApplicationContext(),0);
+                NotificationBroadcast.setNotification(getApplicationContext(),0,null);
 
                 return ;
             }

@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
 
 public class GpsCatcher extends Service implements LocationListener {  //} implements View.OnClickListener{
     private Logger mLogger = Logger.getLogger(GpsCatcher.class);
@@ -63,6 +65,15 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     FileOutputStream fos;
     SharedPreferences pref;     //비정상 종료시 마지막으로 수정된 파일 이름에 저장
     Calendar calendar;
+    Calendar firstTime;
+    Calendar secTime;
+
+    int dailyCount=0;
+    static List<Double> lonList;
+    static List<Double> latList;
+    static List<Double> distList;
+    static List<Integer> timeList;
+
 
     @Override
     public void onCreate() {
@@ -80,7 +91,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         if (isWorking == 1) {
 
-            NotificationBroadcast.setNotification(context, 2);  // 안전 운행 시작!
+            NotificationBroadcast.setNotification(context, 2,null);  // 안전 운행 시작!
 
 
             startTime = System.currentTimeMillis();
@@ -197,7 +208,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                                     if (!trigger) {      //수동 종료아닐 때 상단 알림
 
-                                        NotificationBroadcast.setNotification(getContext(), 3); //timeout으로 종료 상단바 알림
+                                        NotificationBroadcast.setNotification(getContext(), 3,getDada()); //timeout으로 종료 상단바 알림
 
                                     } else {              //수동 종료일 때 상단바 알림 제거
                                         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -277,6 +288,9 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     @Override
     public void onLocationChanged(Location location) {
 
+        int intervalTime;
+        double intervalDistance;
+
         mlocation = location;
 
         x3 = mlocation.getLatitude();
@@ -298,7 +312,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             i--;
 
-            if (i == 0) {
+            if (i == 0) {                               // p = 3 일 때
                 first = false;
 
                 try {
@@ -309,11 +323,17 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                     fos.write(waypoint.getBytes());
                     fos.close();
 
+                    secTime = Calendar.getInstance();
                 } catch (Exception e) {
 
                 }
+                return;
+            }else if( i == 1 ){
+                firstTime = Calendar.getInstance();      // p = 1 일 때
+                return;
             }
-            return;
+
+
         }
 
         double maxInterval = 0;
@@ -321,7 +341,8 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         float[] result = new float[3];
 
-        Location.distanceBetween(x1, y1, x2, y2, result);
+        Location.distanceBetween(x1, y1, x2, y2, result); // m 단위
+
 
         if (result[0] <= 166) {
 
@@ -340,7 +361,9 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             if (result[0] <= maxInterval) { // 용인범위
 
-                distance += result[0];
+                intervalDistance = result[0];
+                distance += intervalDistance;
+
 
             } else {  // 에러 인지, 보정
 
@@ -371,7 +394,8 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                 y2 = (pa[1] + pb[1]) / 2;
 
                 Location.distanceBetween(x1, y1, x2, y2, result);  //보정된 x2,y2로 다시 계산
-                distance += result[0];
+                intervalDistance = result[0];
+                distance += intervalDistance;
             }
 
         } else {
@@ -403,7 +427,8 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             y2 = (pa[1] + pb[1]) / 2;
 
             Location.distanceBetween(x1, y1, x2, y2, result);  //보정된 x2,y2로 다시 계산
-            distance += result[0];
+            intervalDistance = result[0];
+            distance += intervalDistance;
 
         }
 
@@ -415,13 +440,29 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         v2 = v3;
         e2 = e3;
 //        v1 = v2; //v1을 저장할 필요가 있나?
+
+
+        firstTime = secTime;
+        secTime = calendar;
         calendar = Calendar.getInstance();
+
+        intervalTime = (int) (secTime.getTimeInMillis() - firstTime.getTimeInMillis())/1000; //초단위로 환산
+
+
+        timeList.add(intervalTime);                                                                                // Tn+1 - Tn ,second
+        lonList.add(y2);                                                                                          // yn+1
+        latList.add(x2);                                                                                          // xn+1
+        distList.add(intervalDistance);                                                                           // (xn,yn)~(xn+1,yn+1), ,meter
+        //할증 여부
+        dailyCount++;
+
+
         String gpsLog = "<trkpt lat=\"" + x2 + "\" lon=\"" + y2 + "\"><ele>" + e2 + "</ele>" +
                 "<time>" + String.format("%d", calendar.get(Calendar.YEAR)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "T" +
                 String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ":" + String.format("%02d", calendar.get(Calendar.SECOND)) + "Z</time></trkpt>"+ System.lineSeparator() +"";
 
 
-        
+
 //        if( location.getSpeed() < 10 ){
 //            locationManager.requestLocationUpdates(bestProvider, 1000, 0, this);
 //            Log.d(TAG, "GPSCatcher:onLocationChanged_(" + x2 + "), (" + y2 + "), < 10");
@@ -437,7 +478,6 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             fos = new FileOutputStream(file, true);  //mode_append
             fos.write(gpsLog.getBytes());
             fos.close();
-
         } catch (Exception e) {
             mLogger.error("onLocationChanged_파일 출력 에러");
         }
@@ -578,6 +618,17 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
     static public Location getLocation() {
         return mlocation;
+    }
+
+    static public HashMap getDada() {
+
+        HashMap<String, List> data = new HashMap<>();
+        data.put("lonList", lonList);
+        data.put("latList", latList);
+        data.put("distList", distList);
+        data.put("timeList", timeList);
+
+        return data;
     }
 }
 
