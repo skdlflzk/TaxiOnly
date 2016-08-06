@@ -49,7 +49,7 @@ public class ControlPartActivity extends AppCompatActivity {
             context = this;
             LayoutInflater inflater = LayoutInflater.from(this);
 
-//        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
+        requestWindowFeature(android.view.Window.FEATURE_NO_TITLE);
             setContentView(inflater.inflate(R.layout.activity_alarm, null));
 
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED | WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);

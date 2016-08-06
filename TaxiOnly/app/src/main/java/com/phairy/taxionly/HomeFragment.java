@@ -40,6 +40,7 @@ import java.util.Calendar;
 
 
 public class HomeFragment extends Fragment {
+
     private Logger mLogger = Logger.getLogger(HomeFragment.class);
     private String TAG = Start.TAG;
 
@@ -60,16 +61,16 @@ public class HomeFragment extends Fragment {
         View view = binding.getRoot();
         mLogger.error("--HomeFragment--" + MainMenu.class.getSimpleName());
 
-
-
         logtext = (TextView )view.findViewById(R.id.logText);
 
 
-//        Button takeButton = (Button) view.findViewById(R.id.TakeButton);
+
+
         binding.TakeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+/*
                 AsyncHttpSet asyncHttpSet = new AsyncHttpSet(true);
                 RequestParams params = new RequestParams();
                 params.setContentEncoding("UTF-8");
@@ -212,7 +213,7 @@ public class HomeFragment extends Fragment {
                         }
                     }
                 });
-
+*/
 //                Location mlocation;
 //                mlocation = GpsCatcher.getLocation();
 //
@@ -290,7 +291,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
     }
 
 

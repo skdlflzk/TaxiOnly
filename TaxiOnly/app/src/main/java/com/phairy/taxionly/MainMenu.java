@@ -2,6 +2,7 @@ package com.phairy.taxionly;
 
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -16,6 +17,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Vibrator;
 import android.provider.Settings;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -69,7 +71,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
             btn[i].setOnClickListener(this);
         }
 
-       handleIntentFlag(getIntent());       //intent flag에 따른 처리( gps ON, 가계부 시작 등 )
+        handleIntentFlag(getIntent());       //intent flag에 따른 처리( gps ON, 가계부 시작 등 )
 
     }
 
@@ -78,7 +80,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 
         switch (v.getId()) {
             case R.id.btn_a:
-				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+                btn[p].setBackgroundColor(Color.parseColor("#00000000"));
                 p = 0;
                 btn[p].setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(0);
@@ -87,15 +89,15 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 
             case R.id.btn_b:
                 btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-				p = 1;
-				v.setBackgroundColor(Color.parseColor("#bbbbbb"));
+                p = 1;
+                v.setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(1);
                 break;
 
             case R.id.btn_c:
-				btn[p].setBackgroundColor(Color.parseColor("#00000000"));
-				p = 2;
-				v.setBackgroundColor(Color.parseColor("#bbbbbb"));
+                btn[p].setBackgroundColor(Color.parseColor("#00000000"));
+                p = 2;
+                v.setBackgroundColor(Color.parseColor("#bbbbbb"));
                 viewPager.setCurrentItem(2);
 
                 break;
@@ -177,43 +179,62 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
         }
     }
 
-    private void handleIntentFlag(Intent intent){
+    private void handleIntentFlag(Intent intent) {
+        try {
+            if (intent.getIntExtra("flag", 0) == 12345) {    //주행 끝 데이터 전송
 
+//                FragmentManager fm = getFragmentManager();
+//                HomeFragment fragment = new HomeFragment();
+//                fragment.setArguments(intent.getBundleExtra("data"));   //HomeFragment에 주행 데이터 전송
 
-        try{
+                try {
 
-        if( intent.getIntExtra("flag",0) == 1000 ) {    //상단바를 클릭하고 들어왔을 경우
-            ContentResolver res = getContentResolver();
-            boolean gpsEnabled = Settings.Secure.isLocationProviderEnabled(res, LocationManager.GPS_PROVIDER);
+//                    String description = getArguments().getString("A");
+//                    mLogger.error("descript = " +description);
 
-            if(!gpsEnabled){
+                        Intent intent1 = new Intent(context, HouseholdChartActivity.class);
+                        intent1.putExtra("flag",123); // 주행 끝 데이터 전달
+                        intent1.putExtra("data", intent.getBundleExtra("data"));      //hashmap만을 전달하는 셈
+                        intent1.setAction("CREATE");
+                        startActivity(intent1);
 
-                Toast.makeText(getApplicationContext(), "GPS 수신기를 먼저 켜주세요", Toast.LENGTH_SHORT).show();
+                /*
+                (intent내부 - int flag)
+                          ( ㄴBundle data - int action)
+                                          ㄴSerializable Hashmap - lonList
+                                          ㄴint dailyCount       ㄴlatList
+                                          ㄴint distance         ㄴtimeList
+                                                                 ㄴ ...
 
-                NotificationBroadcast.setNotification(getApplicationContext(),0,null);
+                 */
 
-                return ;
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+
+//                Bundle args = new Bundle();
+//                args.putString("A", "testing");
+//                fragment.setArguments(args);   //HomeFragment에 주행 데이터 전송
+//
+//                getSupportFragmentManager().beginTransaction()
+//                        .replace(R.id.viewPager, fragment).commit();
+                mLogger.debug("handleIntentFlag()_주행 끝, 데이터 fragment로 전송");
+                /*
+                (intent내부 - int flag)
+                          ( ㄴBundle data - int action)
+                                          ㄴSerializable Hashmap - lonList
+                                          ㄴint dailyCount       ㄴlatList
+                                                                 ㄴtimeList
+                                                                 ㄴ ...
+
+                 */
+
+            } else {
+                mLogger.info("MainMenu : 평소 열기");
             }
-
-            if( Start.getIsWorking(context) == 0) {
-                mLogger.error("--alarm!--");
-                Log.e(Start.TAG, "MainMenu : alarm! GPS 수집을 시작합니다");
-                Toast.makeText(getApplicationContext(), "주행 거리를 측정합니다\n오늘도 안전하게!", Toast.LENGTH_SHORT).show();
-                Intent intentService = new Intent(this, GpsCatcher.class);
-                Start.toggleIsWorking(context, 1);
-                startService(intentService); //서비스 시작
-
-                intent.putExtra("flag",0); // event가 다시 시작하지 않게 조치
-
-            }else{
-                Toast.makeText(getApplicationContext(), "이미 기록중입니다\n종료 후 다시 시작해주세요", Toast.LENGTH_SHORT).show();
-            }
-        }else {
-            mLogger.info("MainMenu : 평소 열기");
-        }
-    }catch (Exception e) {
+        } catch (Exception e) {
             mLogger.error("putExtra 오류");
-    }
+        }
 
     }
 

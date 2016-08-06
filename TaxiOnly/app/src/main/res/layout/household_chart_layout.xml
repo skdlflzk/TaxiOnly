@@ -4,14 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#ddffffff"
     android:weightSum="1">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="124dp"
+        android:layout_height="98dp"
         android:background="@drawable/border"
         android:orientation="vertical"
-        android:weightSum="1">
+        android:weightSum="1"
+        android:layout_weight="0.31">
 
         <TextView
             android:id="@+id/day"
@@ -23,8 +25,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_weight="0.03"
+            android:layout_height="50dp"
             android:orientation="horizontal" >
 
 
@@ -36,7 +37,8 @@
                 android:ems="10"
                 android:gravity="center"
                 android:visibility="invisible"
-                android:layout_gravity="end|center_vertical" />
+                android:layout_gravity="end|center_vertical"
+                android:text="0"  />
 
             <TextView
                 android:id="@+id/distanceCaption"
@@ -58,8 +60,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_weight="0.03"
+            android:layout_height="50dp"
             android:orientation="horizontal" >
 
 
@@ -70,7 +71,9 @@
                 android:ems="10"
                 android:gravity="center"
                 android:visibility="invisible"
-                android:layout_gravity="end|center_vertical" />
+                android:layout_gravity="end|center_vertical"
+                android:inputType="number"
+                android:text="0" />
 
             <TextView
                     android:id="@+id/clientCaption"
@@ -88,11 +91,17 @@
                 android:id="@+id/clientText"
                 android:layout_gravity="end|center_vertical" />
         </FrameLayout>
+
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:orientation="vertical"
+        android:weightSum="1">
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_weight="0.03"
+        android:layout_height="50dp"
         android:orientation="horizontal" >
 
         <EditText
@@ -102,7 +111,9 @@
             android:ems="10"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="right|center_vertical" />
+            android:layout_gravity="right|center_vertical"
+            android:inputType="number"
+            android:text="0" />
 
         <TextView
             android:id="@+id/incomeCaption"
@@ -124,7 +135,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="50dp"
         android:layout_gravity="center_horizontal"
         android:layout_weight="0.03"
         android:orientation="horizontal" >
@@ -136,7 +147,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:layout_gravity="right|center_vertical" />
+            android:layout_gravity="right|center_vertical"
+            android:text="0" />
 
         <TextView
             android:id="@+id/spendingCaption"
@@ -167,7 +179,7 @@
 
         <FrameLayout
         android:layout_width="198dp"
-        android:layout_height="30dp"
+        android:layout_height="40dp"
         android:layout_gravity="right"
         android:orientation="horizontal" >
 
@@ -179,6 +191,8 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="8"
+                android:text="0"
+                android:inputType="number"
                 android:layout_gravity="right|center_vertical" />
 
             <TextView
@@ -200,7 +214,7 @@
         </FrameLayout>
         <FrameLayout
             android:layout_width="198dp"
-            android:layout_height="30dp"
+            android:layout_height="40dp"
             android:layout_gravity="right"
             android:orientation="horizontal" >
 
@@ -209,8 +223,10 @@
                 android:visibility="invisible"
                 android:layout_width="112dp"
                 android:id="@+id/foodEdit"
+                android:text="0"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.37"
+                android:inputType="number"
                 android:layout_gravity="right|center_vertical" />
 
             <TextView
@@ -229,12 +245,43 @@
                 android:id="@+id/foodText"
                 android:layout_gravity="right|center_vertical" />
         </FrameLayout>
+        <FrameLayout
+            android:layout_width="198dp"
+            android:layout_height="40dp"
+            android:layout_gravity="right"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:gravity="center"
+                android:visibility="invisible"
+                android:layout_width="112dp"
+                android:id="@+id/etcEdit"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:text="0"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/etcCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기타"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="left|center_vertical" />
+
+            <TextView
+                android:layout_width="112dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center"
+                android:id="@+id/etcText"
+                android:layout_gravity="right|center_vertical" />
+        </FrameLayout>
     </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="30dp"
+        android:layout_height="70dp"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0.03"
         android:orientation="horizontal" >
 
         <TextView
@@ -253,10 +300,11 @@
             android:id="@+id/netGainText"
             android:layout_gravity="right|center_vertical" />
     </FrameLayout>
+
+        </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.03"
         android:orientation="horizontal" >
 
         <Button
@@ -276,7 +324,5 @@
             android:layout_gravity="right|top"
             android:onClick="onConfirmClicked" />
     </FrameLayout>
-
-
 </LinearLayout>
 </layout>

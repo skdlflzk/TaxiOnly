@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import org.apache.log4j.Logger;
@@ -44,7 +45,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
     public boolean first = true;
 
-    static double distance;
+    static int distance;
 
     private double x1, x2, x3;
     private double y1, y2, y3;
@@ -72,6 +73,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     static List<Double> lonList;
     static List<Double> latList;
     static List<Double> distList;
+    static List<Integer> nightList;
     static List<Integer> timeList;
 
 
@@ -91,7 +93,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         if (isWorking == 1) {
 
-            NotificationBroadcast.setNotification(context, 2,null);  // 안전 운행 시작!
+            NotificationBroadcast.setNotification(context, 2);  // 안전 운행 시작!
 
 
             startTime = System.currentTimeMillis();
@@ -109,7 +111,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         } else if (isWorking == 2) {
             startTime = pref.getLong("startTime", 0);
             fileName = pref.getString("fileName", "errorFile");
-            distance = pref.getFloat("distance", 0);
+            distance = pref.getInt("distance", 0);
         } else {
             mLogger.error("onCreate_isWorking == 0 BUT restarted. fileName = " + fileName);
         }
@@ -198,7 +200,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                             mLogger.debug("GPSCatcher:onStartCommand_servive 실행 중 - " + t + "초 간격, " + (System.currentTimeMillis() - startTime) / 1000 + "초 경과");
 
 
-                            if (((System.currentTimeMillis() - startTime) / (60000) > timeLimit) || trigger) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s
+                            if (((System.currentTimeMillis() - startTime) / (1000) > timeLimit) || trigger) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s으로 설정 /60000은 1분
 
                                 try {
                                     mLogger.error(":onStartCommand_servive 작업 종료됨 ");
@@ -208,7 +210,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                                     if (!trigger) {      //수동 종료아닐 때 상단 알림
 
-                                        NotificationBroadcast.setNotification(getContext(), 3,getDada()); //timeout으로 종료 상단바 알림
+                                        NotificationBroadcast.setNotification(getContext(), 3); //timeout으로 종료 상단바 알림
 
                                     } else {              //수동 종료일 때 상단바 알림 제거
                                         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -261,7 +263,29 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                     mLogger.error(" onStartCommand_파일 마무리 에러");
                                 }
 
-                                mLogger.info(" onStartCommand_ stopingSelf...");
+                                Intent i = new Intent(getApplicationContext(), MainMenu.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                Bundle bundle = new Bundle();
+                                bundle.putSerializable("HashMap", getData());
+                                bundle.putInt("action", 1234);
+                                bundle.putInt("dailyCount", dailyCount);
+                                bundle.putInt("distance", distance);
+                                 /*
+                (intent내부 - int flag)
+                          ( ㄴBundle data - int action)
+                                          ㄴSerializable Hashmap - lonList
+                                          ㄴint dailyCount       ㄴlatList
+                                          ㄴint distance         ㄴtimeList
+                                                                 ㄴ ...
+
+                                */
+                                i.putExtra("data", bundle);
+                                i.putExtra("flag", 12345);  //주행 종료를 의미
+
+                                startActivity(i);
+
+                                mLogger.info(" onStartCommand_ Activity Start, StopSelf...");
+
                                 stopSelf();
 
                             }
@@ -453,6 +477,11 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         lonList.add(y2);                                                                                          // yn+1
         latList.add(x2);                                                                                          // xn+1
         distList.add(intervalDistance);                                                                           // (xn,yn)~(xn+1,yn+1), ,meter
+        if(secTime.get(Calendar.HOUR_OF_DAY) < 4 || secTime.get(Calendar.HOUR_OF_DAY) > 0){ //할증
+            nightList.add(1);
+        }else{
+            nightList.add(0);
+        }
         //할증 여부
         dailyCount++;
 
@@ -521,7 +550,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         return fileName;
     }
 
-    static public double getDistance() {
+    static public int getDistanceMeter() {
         return distance;
     }
 */
@@ -538,22 +567,23 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             registerRestartAlarm();
 
-            mLogger.debug("onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 서비스를 계속 진행합니다..." + distance);
+            mLogger.debug("onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 서비스를 계속 진행합니다..." + distance+"m 주행 중");
 
-            editor.putFloat("distance", (float) distance);
+            editor.putInt("distance", distance);
             editor.commit();
 
         } else {
 
-            mLogger.debug("onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 종료! 현재 이동 거리 =  " + distance + "m,  " + fileName + "에 저장되었습니다");
+            mLogger.debug("onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 종료! 현재 이동 거리 =  " + distance + "m 주행,  " + fileName + "에 저장되었습니다");
 
-            editor.putFloat("distance", 0);
+            editor.putInt("distance", 0);
             editor.commit();
 
         }
     }
 
     private void updatePart() {
+        mLogger.debug(":updatePart_주행 기록 갱신...");
 
         database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
         Cursor cursor = database.rawQuery("Select partCurrentValue,partName,etc FROM " + TABLENAME, null);
@@ -562,7 +592,8 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         double value;
 
-        for (int i = 0; i < size; i++) {
+        Double d;
+        for (int  i = 0; i < size; i++) {
 
             cursor.moveToPosition(i);
             value = cursor.getDouble(0);
@@ -571,9 +602,10 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             if (etc.equals("km")) {   // etc로 km와 day 구분
 
-                value += Double.parseDouble(String.format("%.2f", distance));  //10m단위 까지
+                value += Double.parseDouble(String.format("%.1f", ((double)distance)/1000 ));  //100m단위 까지
 
-            } else { //             km가 아니면 하루 추가...는 여기서는 안하겠음
+            } else {
+            //          TODO   km가 아니면 하루 추가...는 여기서는 안하겠음
 
 //                value++;
 
@@ -582,8 +614,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             database.execSQL("UPDATE " + TABLENAME + " SET partCurrentValue = '" + value + "' WHERE partName = '" + cursor.getString(1) + "'");
 
 
-            mLogger.error("GpsCatcher:updatePart_ " + cursor.getString(1) + "의 값이 " + value + etc + " 로...");
-
+            mLogger.error("GpsCatcher:updatePart_ " + cursor.getString(1) + "의 값이 " + value + etc + " 증가...");
 
         }
         cursor.close();
@@ -620,13 +651,14 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         return mlocation;
     }
 
-    static public HashMap getDada() {
+    static public HashMap getData() {
 
         HashMap<String, List> data = new HashMap<>();
         data.put("lonList", lonList);
         data.put("latList", latList);
         data.put("distList", distList);
         data.put("timeList", timeList);
+        data.put("nightList", nightList);
 
         return data;
     }

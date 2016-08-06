@@ -52,6 +52,9 @@
             android:name="com.phairy.taxionly.AlarmActivity"
             android:theme="@android:style/Theme.Dialog" />
         <activity
+            android:name="com.phairy.taxionly.HouseholdChartActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
             android:name="com.phairy.taxionly.ControlPartActivity"
             android:label="@string/title_activity_control_part"
             android:theme="@style/AppTheme.NoActionBar" />

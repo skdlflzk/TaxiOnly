@@ -47,6 +47,10 @@
         <activity
             android:name=".AlarmActivity"
             android:theme="@android:style/Theme.Dialog" />
+
+        <activity
+            android:name=".HouseholdChartActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".ControlPartActivity"
             android:label="@string/title_activity_control_part"

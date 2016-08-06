@@ -153,7 +153,7 @@ public class ListFragment extends Fragment {
             database.execSQL("CREATE TABLE if not exists " + TABLENAME + "("
                     + "_id integer PRIMARY KEY autoincrement, "
                     + "partName text, "
-                    + "partMaxValue REAL, "
+                    + "partMaxValue REAL, "                 //하루 단위 일수도 있지만 km때문에 real로 설정
                     + "partCurrentValue REAL, "
                     + "etc text)");
 
@@ -254,7 +254,7 @@ public class ListFragment extends Fragment {
         }
 
     }
-
+/*
     private void getPartData() {
         int size = 0;
         String partName ;
@@ -284,7 +284,7 @@ public class ListFragment extends Fragment {
 
         }
     }
-
+*/
 
     class ClassAdapter extends BaseAdapter {
         //리스트 뷰의 정보를 관리할 어댑터 설정

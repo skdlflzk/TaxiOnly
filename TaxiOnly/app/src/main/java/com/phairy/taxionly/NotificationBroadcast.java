@@ -197,7 +197,7 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
     }
 
 
-    static public void setNotification(Context context, int state, HashMap data) {
+    static public void setNotification(Context context, int state) {
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
@@ -269,11 +269,11 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
 
             tickText = "운행이 종료되었습니다";
 
-            intent = new Intent(context, HouseholdChartActivity.class);
-            intent.putExtra("Hashmap",GpsCatcher.getDada());
-            pi = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
+//            intent = new Intent(context, HouseholdChartActivity.class);
+//            intent.putExtra("Hashmap",GpsCatcher.getDada());
+//            pi = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
 
-            builder.addAction(R.drawable.notification_template_icon_bg, "가계부 작성하기", pi);
+//            builder.addAction(R.drawable.notification_template_icon_bg, "가계부 작성하기", pi);
 //            builder.addAction(R.drawable.notification_template_icon_bg, "", pi);
             flag = Notification.FLAG_AUTO_CANCEL;
 
