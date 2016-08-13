@@ -25,6 +25,7 @@ import org.apache.log4j.Logger;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -69,12 +70,13 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     Calendar firstTime;
     Calendar secTime;
 
-    int dailyCount=0;
-    static List<Double> lonList;
-    static List<Double> latList;
-    static List<Double> distList;
-    static List<Integer> nightList;
-    static List<Integer> timeList;
+    int dailyCount = 0;
+
+    static ArrayList<Double> lonList = new ArrayList<>();
+    static ArrayList<Double> latList = new ArrayList<>();
+    static ArrayList<Double> distList = new ArrayList<>();
+    static ArrayList<Integer> nightList = new ArrayList<>();
+    static ArrayList<Integer> timeList = new ArrayList<>();
 
 
     @Override
@@ -116,6 +118,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             mLogger.error("onCreate_isWorking == 0 BUT restarted. fileName = " + fileName);
         }
 
+
         String mSdPath;
 
         String ext = Environment.getExternalStorageState();
@@ -125,22 +128,22 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             mSdPath = Environment.MEDIA_UNMOUNTED;
         }
 
-        file = new File(mSdPath + File.separator+ "TaxiOnly"+File.separator+"Temp"+File.separator + fileName + ".gpx");  //파일 생성!
+        file = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator + fileName + ".gpx");  //파일 생성!
 
 
         if (isWorking == 1) {
 
 
             try {
-                File dir = new File(mSdPath + File.separator+ "TaxiOnly"+File.separator+"Temp"+File.separator);
+                File dir = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator);
                 dir.mkdir();
 
                 fos = new FileOutputStream(file, true);  //mode_append
                 String header = "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" " +
                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" " +
-                        "creator=\"TAXIONLY\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">"+ System.lineSeparator() +"" +
-                        "<trk>"+ System.lineSeparator() +"" +
-                        "<name>TAXIONLY</name>"+ System.lineSeparator() +"<trkseg>"+ System.lineSeparator() +"";
+                        "creator=\"TAXIONLY\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">" + System.lineSeparator() + "" +
+                        "<trk>" + System.lineSeparator() + "" +
+                        "<name>TAXIONLY</name>" + System.lineSeparator() + "<trkseg>" + System.lineSeparator() + "";
 
                 fos.write(header.getBytes());
                 fos.close();
@@ -200,7 +203,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                             mLogger.debug("GPSCatcher:onStartCommand_servive 실행 중 - " + t + "초 간격, " + (System.currentTimeMillis() - startTime) / 1000 + "초 경과");
 
 
-                            if (((System.currentTimeMillis() - startTime) / (1000) > timeLimit) || trigger) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s으로 설정 /60000은 1분
+                            if (((System.currentTimeMillis() - startTime) / (60000) >= timeLimit) || trigger) {     //6시간 이상 일을 하였다면 /3600*1000 == 1h ,  /1000 == 1s으로 설정 /60000은 1분
 
                                 try {
                                     mLogger.error(":onStartCommand_servive 작업 종료됨 ");
@@ -234,13 +237,12 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                                     fos = new FileOutputStream(file, true);  //mode_append
                                     calendar = Calendar.getInstance();
-                                    String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">"+ System.lineSeparator() +"" + "<name>fin " +
+                                    String waypoint = "<wpt lon=\"" + x2 + "\" lat=\"" + y2 + "\">" + System.lineSeparator() + "" + "<name>fin " +
                                             String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ":" +
                                             String.format("%02d", calendar.get(Calendar.SECOND)) + "</name></wpt>";
                                     fos.write(waypoint.getBytes());
 
-                                    String trailer = "</trkseg></trk>"+ System.lineSeparator() +"" + "</gpx>";
-
+                                    String trailer = "</trkseg></trk>" + System.lineSeparator() + "" + "</gpx>";
 
 
                                     fos.write(trailer.getBytes());
@@ -256,7 +258,9 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                     }
 
                                     File f = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator + fileName + ".gpx");
-                                    f.renameTo( new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileName + ".gpx"));
+                                    if(!f.renameTo(new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileName + ".gpx"))){
+                                        mLogger.error(" onStartCommand_파일 이동 실패. 파일이 없거나 이상함");
+                                    }
 
                                 } catch (Exception e) {
 
@@ -264,7 +268,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                 }
 
                                 Intent i = new Intent(getApplicationContext(), MainMenu.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("HashMap", getData());
                                 bundle.putInt("action", 1234);
@@ -352,7 +356,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
                 }
                 return;
-            }else if( i == 1 ){
+            } else if (i == 1) {
                 firstTime = Calendar.getInstance();      // p = 1 일 때
                 return;
             }
@@ -367,8 +371,10 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         Location.distanceBetween(x1, y1, x2, y2, result); // m 단위
 
+        //TODO 속력을 시간값으로 나누서 다시 해야함!
 
-        if (result[0] <= 166) {
+
+        if (result[0] <= 166) { //166미터 이내일때
 
             // 최대 이동거리 계산
             if (v3 - v2 > 50) {
@@ -385,7 +391,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             if (result[0] <= maxInterval) { // 용인범위
 
-                intervalDistance = result[0];
+                intervalDistance =  result[0];
                 distance += intervalDistance;
 
 
@@ -417,7 +423,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                 x2 = (pa[0] + pb[0]) / 2;
                 y2 = (pa[1] + pb[1]) / 2;
 
-                Location.distanceBetween(x1, y1, x2, y2, result);  //보정된 x2,y2로 다시 계산
+                Location.distanceBetween(x1, y1, x2, y2, result);  //보정된 x2,y2로 다시 계산 meter!!
                 intervalDistance = result[0];
                 distance += intervalDistance;
             }
@@ -451,7 +457,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             y2 = (pa[1] + pb[1]) / 2;
 
             Location.distanceBetween(x1, y1, x2, y2, result);  //보정된 x2,y2로 다시 계산
-            intervalDistance = result[0];
+            intervalDistance =  result[0];
             distance += intervalDistance;
 
         }
@@ -470,26 +476,29 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         secTime = calendar;
         calendar = Calendar.getInstance();
 
-        intervalTime = (int) (secTime.getTimeInMillis() - firstTime.getTimeInMillis())/1000; //초단위로 환산
+        intervalTime = (int) (secTime.getTimeInMillis() - firstTime.getTimeInMillis()) / 1000; //초단위로 환산
 
-
-        timeList.add(intervalTime);                                                                                // Tn+1 - Tn ,second
-        lonList.add(y2);                                                                                          // yn+1
-        latList.add(x2);                                                                                          // xn+1
-        distList.add(intervalDistance);                                                                           // (xn,yn)~(xn+1,yn+1), ,meter
-        if(secTime.get(Calendar.HOUR_OF_DAY) < 4 || secTime.get(Calendar.HOUR_OF_DAY) > 0){ //할증
-            nightList.add(1);
-        }else{
-            nightList.add(0);
+        try {
+            timeList.add(intervalTime);                                                                                // Tn+1 - Tn ,second
+            lonList.add(y2);                                                                                          // yn+1
+            latList.add(x2);                                                                                          // xn+1
+            distList.add(intervalDistance);                                                                           // (xn,yn)~(xn+1,yn+1), ,meter
+            if (secTime.get(Calendar.HOUR_OF_DAY) < 4 || secTime.get(Calendar.HOUR_OF_DAY) > 0) { //할증
+                nightList.add(1);
+            } else {
+                nightList.add(0);
+            }
+            //할증 여부
+            dailyCount++;
+        } catch (Exception e) {
+            e.printStackTrace();
+            mLogger.debug("GPSCatcher:onCreate_GPS 데이터 저장 에러!!");
         }
-        //할증 여부
-        dailyCount++;
+        try {
 
-
-        String gpsLog = "<trkpt lat=\"" + x2 + "\" lon=\"" + y2 + "\"><ele>" + e2 + "</ele>" +
-                "<time>" + String.format("%d", calendar.get(Calendar.YEAR)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "T" +
-                String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ":" + String.format("%02d", calendar.get(Calendar.SECOND)) + "Z</time></trkpt>"+ System.lineSeparator() +"";
-
+            String gpsLog = "<trkpt lat=\"" + x2 + "\" lon=\"" + y2 + "\"><ele>" + e2 + "</ele>" +
+                    "<time>" + String.format("%d", calendar.get(Calendar.YEAR)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "T" +
+                    String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ":" + String.format("%02d", calendar.get(Calendar.SECOND)) + "Z</time></trkpt>" + System.lineSeparator() + "";
 
 
 //        if( location.getSpeed() < 10 ){
@@ -502,7 +511,6 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 //            t=5;
 //        }
 
-        try {
 
             fos = new FileOutputStream(file, true);  //mode_append
             fos.write(gpsLog.getBytes());
@@ -545,15 +553,15 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
     }
 
-    /*
+
     static public String getFileName() {
         return fileName;
     }
-
-    static public int getDistanceMeter() {
-        return distance;
-    }
-*/
+    /*
+        static public int getDistanceMeter() {
+            return distance;
+        }
+    */
     private Context getContext() {
         return this;
     }
@@ -567,7 +575,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             registerRestartAlarm();
 
-            mLogger.debug("onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 서비스를 계속 진행합니다..." + distance+"m 주행 중");
+            mLogger.debug("onDestroy_Destroy 호출 ㅡㅡㅡㅡㅡㅡㅡㅡ 서비스를 계속 진행합니다..." + distance + "m 주행 중");
 
             editor.putInt("distance", distance);
             editor.commit();
@@ -593,7 +601,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         double value;
 
         Double d;
-        for (int  i = 0; i < size; i++) {
+        for (int i = 0; i < size; i++) {
 
             cursor.moveToPosition(i);
             value = cursor.getDouble(0);
@@ -602,10 +610,10 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             if (etc.equals("km")) {   // etc로 km와 day 구분
 
-                value += Double.parseDouble(String.format("%.1f", ((double)distance)/1000 ));  //100m단위 까지
+                value += Double.parseDouble(String.format("%.1f", ((double) distance) / 1000));  //100m단위 까지
 
             } else {
-            //          TODO   km가 아니면 하루 추가...는 여기서는 안하겠음
+                //          TODO   km가 아니면 하루 추가...는 여기서는 안하겠음
 
 //                value++;
 
@@ -651,9 +659,10 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         return mlocation;
     }
 
+
     static public HashMap getData() {
 
-        HashMap<String, List> data = new HashMap<>();
+        HashMap<String, ArrayList> data = new HashMap<>();
         data.put("lonList", lonList);
         data.put("latList", latList);
         data.put("distList", distList);

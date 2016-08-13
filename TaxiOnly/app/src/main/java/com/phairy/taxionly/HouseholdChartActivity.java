@@ -12,10 +12,12 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Text;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +60,11 @@ public class HouseholdChartActivity extends AppCompatActivity {
     TextView netincome;
     TextView spendingText;
     EditText incomeEdit;
+    EditText gasEdit;
+    EditText foodEdit;
+    EditText etcEdit;
+    EditText clientEdit;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -105,6 +113,9 @@ public class HouseholdChartActivity extends AppCompatActivity {
             action = intent.getAction();
             mLogger.error("onCreate_ intent gets data  from MainMenu ... " + intent.getBundleExtra("data").getInt("distance", -1) + "km");
             bundle = intent.getBundleExtra("data");
+            if(bundle == null){
+                intent.putExtra("flag",0);
+            }
         } catch (Exception e) {
             mLogger.error("onCreate_ intent doesn't have data");
             if (intent.getIntExtra("flag", 0) == 123) {
@@ -117,41 +128,73 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
         mLogger.info("onCreate() / action == " + action + ", chartSize = " + index);
 
-
         netincome = (TextView) findViewById(R.id.netGainText);
         spendingText = (TextView) findViewById(R.id.spendingText);
+
         incomeEdit = (EditText) findViewById(R.id.incomeEdit);
-        spendingText.addTextChangedListener(new TextWatcher() {
+        //유류비 식비 기타 수입
+        gasEdit = (EditText) findViewById(R.id.gasEdit);
+        foodEdit = (EditText) findViewById(R.id.foodEdit);
+        etcEdit = (EditText) findViewById(R.id.etcEdit);
+        clientEdit = (EditText) findViewById(R.id.clientEdit);
+        TextView.OnEditorActionListener editorActionListener = new TextView.OnEditorActionListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
+                switch (textView.getId()) {
+                    case R.id.clientEdit:
+                        if(intent.getIntExtra("flag", 0) == 123){
 
+                            HashMap<String, ArrayList> hash = (HashMap<String, ArrayList>) bundle.getSerializable("HashMap");
+                            ArrayList<Integer> ar = hash.get("distList");
+                            mLogger.error("TEst_distcheck = " + ar.get(0)+ar.get(1)+ar.get(2)+ar.get(3)+ar.get(4)+ar.get(5)+ar.get(6)+ar.get(7)+ar.get(8)+ar.get(9)+ ", dailyCount = " + bundle.get("dailyCount"));
+
+                            driveResult = getParsedata(bundle, Integer.parseInt(clientEdit.getText().toString()));
+                            Toast.makeText(getApplicationContext(), "money = " + driveResult.get("money") + ", 주행거리 = " + driveResult.get("moneyDist"), Toast.LENGTH_LONG).show();
+
+                        }
+                        break;
+
+                    default:
+                        switch (id) {
+                            case EditorInfo.IME_ACTION_DONE:
+                            case EditorInfo.IME_ACTION_NEXT:
+                                int gas = Integer.parseInt(gasEdit.getText().toString());
+                                int food = Integer.parseInt(foodEdit.getText().toString());
+                                int etc = Integer.parseInt(etcEdit.getText().toString());
+                                int income = Integer.parseInt(incomeEdit.getText().toString());
+
+                                spendingText.setText("" + (gas + food + etc));
+                                netincome.setText("" + (income - gas - food - etc));
+                                break;
+
+                            default:
+                                //action_done
+
+                        }
+                }
+                return false;
             }
+        };
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            incomeEdit.setOnEditorActionListener(editorActionListener);
+            gasEdit.setOnEditorActionListener(editorActionListener);
+            foodEdit.setOnEditorActionListener(editorActionListener);
+            etcEdit.setOnEditorActionListener(editorActionListener);
+            clientEdit.setOnEditorActionListener(editorActionListener);
 
-            }
+            if(action.equals("SHOW"))
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-                int i = Integer.parseInt(incomeEdit.getText().toString());
-                int s = Integer.parseInt(spendingText.getText().toString());
+            {        //보여주기
 
-                netincome.setText(""+(i-s));
-            }
-        });
+                if (index == 0) {
+                    mLogger.error("onCreate() /  index == 0 , 데이터가 없음");
+                    return;
+                }
 
-        if (action.equals("SHOW")) {        //보여주기
+                try {
 
-            if (index == 0) {
-                mLogger.error("onCreate() /  index == 0 , 데이터가 없음");
-                return;
-            }
-
-            try {
-
-                database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
-                Cursor cursor = database.rawQuery("Select * FROM " + TABLENAME, null);
+                    database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
+                    Cursor cursor = database.rawQuery("Select * FROM " + TABLENAME, null);
                 /*
                 + "_id integer PRIMARY KEY autoincrement, "
                         + "distance Integer, "
@@ -163,90 +206,94 @@ public class HouseholdChartActivity extends AppCompatActivity {
                         + "etc text)");
                 */
 
-                cursor.moveToPosition(index - 1); // 0부터 시작하므로
-                int distance = cursor.getInt(0);
-                int client = cursor.getInt(1);
-                int income = cursor.getInt(2);
-                int spending = cursor.getInt(3);
-                int netGain = cursor.getInt(4);
+                    cursor.moveToPosition(index - 1); // 0부터 시작하므로
+                    int distance = cursor.getInt(0);
+                    int client = cursor.getInt(1);
+                    int income = cursor.getInt(2);
+                    int spending = cursor.getInt(3);
+                    int netGain = cursor.getInt(4);
 
-                TextView distanceText = (TextView) findViewById(R.id.distanceText);
-                TextView clientText = (TextView) findViewById(R.id.clientText);
-                TextView incomeText = (TextView) findViewById(R.id.incomeText);
-                TextView spendingText = (TextView) findViewById(R.id.spendingText);
+                    TextView distanceText = (TextView) findViewById(R.id.distanceText);
+                    TextView clientText = (TextView) findViewById(R.id.clientText);
+                    TextView incomeText = (TextView) findViewById(R.id.incomeText);
+                    TextView spendingText = (TextView) findViewById(R.id.spendingText);
 //                TextView distanceText = (TextView) findViewById(R.id.distanceText);
 //                TextView distanceText = (TextView) findViewById(R.id.distanceText);
-                // TODO 보여주기 구현
-                String list = cursor.getString(0);
+                    // TODO 보여주기 구현
+                    String list = cursor.getString(0);
 
-                String etc = cursor.getString(1);
+                    String etc = cursor.getString(1);
 //
 //                binding.distanceText.setText(distance);
 //                binding.clientText.setText(client);
 //                binding.incomeText.setText(income);
 //                binding.spendingText.setText(spending);
 //                binding.netGainText.setText(netGain);
-                //binding.etc.setText(etc);
+                    //binding.etc.setText(etc);
 
-                cursor.close();
+                    cursor.close();
 
-            } catch (Exception e) {
-                mLogger.error("onCreate() / error while showing chart");
-                e.printStackTrace();
+                } catch (Exception e) {
+                    mLogger.error("onCreate() / error while showing chart");
+                    e.printStackTrace();
+                }
+
             }
 
-        } else if (action.equals("CREATE")) {           //생성 시 레이아웃 토글
+            else if(action.equals("CREATE"))
 
-            // String fileName = intent.getStringExtra("fileName");    //왜 파일 읽음?
-            //   mLogger.error("onCreate() / attained fileName = " + fileName);  //왜 파일 읽음?
+            {           //생성 시 레이아웃 토글
 
-            driveResult = new HashMap<>();
+                // String fileName = intent.getStringExtra("fileName");    //왜 파일 읽음?
+                //   mLogger.error("onCreate() / attained fileName = " + fileName);  //왜 파일 읽음?
+
+                driveResult = new HashMap<>();
 
 //            binding.distanceText.setVisibility(View.INVISIBLE);
 //            binding.distanceEdit.setVisibility(View.VISIBLE);
 
-            TextView distanceText = (TextView) findViewById(R.id.distanceText);
-            EditText distanceEdit = (EditText) findViewById(R.id.distanceEdit);
-            distanceText.setVisibility(View.INVISIBLE);
-            distanceEdit.setVisibility(View.VISIBLE);
+                TextView distanceText = (TextView) findViewById(R.id.distanceText);
+                EditText distanceEdit = (EditText) findViewById(R.id.distanceEdit);
+                distanceText.setVisibility(View.INVISIBLE);
+                distanceEdit.setVisibility(View.VISIBLE);
 
-            int distance = intent.getBundleExtra("data").getInt("distance", -1);
-            try {
-                distanceEdit.setText("" + distance);
+                int distance = intent.getBundleExtra("data").getInt("distance", -1);
+                try {
+                    distanceEdit.setText("" + distance);
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                mLogger.error("CREATING_" + distance);
-            }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mLogger.error("CREATING_" + distance);
+                }
 
 //            binding.distanceEdit.setText(distance);
 
-            //driveResult.get("money")
-            //driveResult.get("moneyDist")
+                //driveResult.get("money")
+                //driveResult.get("moneyDist")
 
 
 //            binding.clientText.setVisibility(View.INVISIBLE);
 //            binding.clientEdit.setVisibility(View.VISIBLE);
-            TextView clientText = (TextView) findViewById(R.id.clientText);
-            EditText clientEdit = (EditText) findViewById(R.id.clientEdit);
-            clientText.setVisibility(View.INVISIBLE);
-            clientEdit.setVisibility(View.VISIBLE);
-            clientEdit.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                TextView clientText = (TextView) findViewById(R.id.clientText);
+                EditText clientEdit = (EditText) findViewById(R.id.clientEdit);
+                clientText.setVisibility(View.INVISIBLE);
+                clientEdit.setVisibility(View.VISIBLE);
+                clientEdit.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                }
+                    }
 
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    @Override
+                    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                }
+                    }
 
-                @Override
-                public void afterTextChanged(Editable editable) {
+                    @Override
+                    public void afterTextChanged(Editable editable) {
 
-                    try {
-                        if (intent.getIntExtra("flag", 0) == 123) {
+                        try {
+                            if (intent.getIntExtra("flag", 0) == 123) {
 
                  /*
                 (intent내부 - int flag)
@@ -256,29 +303,31 @@ public class HouseholdChartActivity extends AppCompatActivity {
                                                                  ㄴtimeList
                                                                  ㄴ ...
                  */
-                            driveResult = getParsedata(bundle, Integer.parseInt(editable.toString()));
-                            Toast.makeText(getApplicationContext(), "money = " + driveResult.get("money") + ", 주행거리 = " + driveResult.get("moneyDist"), Toast.LENGTH_LONG).show();
+//                                Toast.makeText(getApplicationContext(), "실행!", Toast.LENGTH_LONG).show();
+//                                driveResult = getParsedata(bundle, Integer.parseInt(editable.toString()));
+//                                Toast.makeText(getApplicationContext(), "money = " + driveResult.get("money") + ", 주행거리 = " + driveResult.get("moneyDist"), Toast.LENGTH_LONG).show();
 
 //                            binding.distanceEdit.setText(driveResult.get("moneyDist"));    //입력이 끝나면 + km
 
-                        } else {
+                            } else {
 
-                            //그냥 열기
+                                //그냥 열기
 
+
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            mLogger.error("getParsedata_errrrrrrrror");
 
                         }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-
                     }
-                }
-            });
+                });
 
-            TextView incomeText = (TextView) findViewById(R.id.incomeText);
-            EditText incomeEdit = (EditText) findViewById(R.id.incomeEdit);
-            incomeText.setVisibility(View.INVISIBLE);
-            incomeEdit.setVisibility(View.VISIBLE);
+                TextView incomeText = (TextView) findViewById(R.id.incomeText);
+                EditText incomeEdit = (EditText) findViewById(R.id.incomeEdit);
+                incomeText.setVisibility(View.INVISIBLE);
+                incomeEdit.setVisibility(View.VISIBLE);
 
 //            binding.incomeText.setVisibility(View.INVISIBLE);
 //            binding.incomeEdit.setVisibility(View.VISIBLE);
@@ -286,118 +335,122 @@ public class HouseholdChartActivity extends AppCompatActivity {
 //            binding.spendingText.setVisibility(View.INVISIBLE);
 //            binding.spendingEdit.setVisibility(View.VISIBLE);
 
-            //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
-            TextView gasText = (TextView) findViewById(R.id.gasText);
-            EditText gasEdit = (EditText) findViewById(R.id.gasEdit);
-            gasText.setVisibility(View.INVISIBLE);
-            gasEdit.setVisibility(View.VISIBLE);
+                //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
+                TextView gasText = (TextView) findViewById(R.id.gasText);
+                EditText gasEdit = (EditText) findViewById(R.id.gasEdit);
+                gasText.setVisibility(View.INVISIBLE);
+                gasEdit.setVisibility(View.VISIBLE);
 //            binding.gasText.setVisibility(View.INVISIBLE);
 //            binding.gasEdit.setVisibility(View.VISIBLE);
-            gasEdit.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            gasEdit.addTextChangedListener(new TextWatcher() {
+//                @Override
+//                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void afterTextChanged(Editable editable) {
+//                    try {
+//                        TextView spendingText = (TextView) findViewById(R.id.spendingText);
+//                        int origin = Integer.parseInt(spendingText.getText().toString());
+//                        int addition = Integer.parseInt(editable.toString());
+//                        spendingText.setText("" + (origin + addition));
+//                        EditText gasEdit = (EditText) findViewById( R.id.gasEdit);
+//                        gasEdit.setText(Integer.parseInt(editable.toString()));
+//                    } catch (Exception e) {
+//
+//                    }
+//                }
+//            });
 
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    try {
-                        TextView spendingText = (TextView) findViewById(R.id.spendingText);
-                        int origin = Integer.parseInt(spendingText.getText().toString());
-                        int addition = Integer.parseInt(editable.toString());
-                        spendingText.setText("" + (origin + addition));
-                        EditText gasEdit = (EditText) findViewById( R.id.gasEdit);
-                        gasEdit.setText(Integer.parseInt(editable.toString()));
-                    } catch (Exception e) {
-
-                    }
-                }
-            });
-
-            TextView foodText = (TextView) findViewById(R.id.foodText);
-            EditText foodEdit = (EditText) findViewById(R.id.foodEdit);
-            foodText.setVisibility(View.INVISIBLE);
-            foodEdit.setVisibility(View.VISIBLE);
+                TextView foodText = (TextView) findViewById(R.id.foodText);
+                EditText foodEdit = (EditText) findViewById(R.id.foodEdit);
+                foodText.setVisibility(View.INVISIBLE);
+                foodEdit.setVisibility(View.VISIBLE);
 
 //            binding.foodText.setVisibility(View.INVISIBLE);
 //            binding.foodEdit.setVisibility(View.VISIBLE);
-            foodEdit.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            foodEdit.addTextChangedListener(new TextWatcher() {
+//                @Override
+//                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void afterTextChanged(Editable editable) {
+//                    try {
+//                        TextView spendingText = (TextView) findViewById(R.id.spendingText);
+//                        int origin = Integer.parseInt(spendingText.getText().toString());
+//                        int addition = Integer.parseInt(editable.toString());
+//                        spendingText.setText("" + (origin + addition));
+//
+//                        EditText foodEdit = (EditText) findViewById( R.id.foodEdit);
+//                        foodEdit.setText(Integer.parseInt(editable.toString()));
+//                    } catch (Exception e) {
+//
+//                    }
+//                }
+//            });
 
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    try {
-                        TextView spendingText = (TextView) findViewById(R.id.spendingText);
-                        int origin = Integer.parseInt(spendingText.getText().toString());
-                        int addition = Integer.parseInt(editable.toString());
-                        spendingText.setText("" + (origin + addition));
-
-                        EditText foodEdit = (EditText) findViewById( R.id.foodEdit);
-                        foodEdit.setText(Integer.parseInt(editable.toString()));
-                    } catch (Exception e) {
-
-                    }
-                }
-            });
-
-            TextView etcText = (TextView) findViewById(R.id.etcText);
-            EditText etcEdit = (EditText) findViewById(R.id.etcEdit);
-            etcText.setVisibility(View.INVISIBLE);
-            etcEdit.setVisibility(View.VISIBLE);
+                TextView etcText = (TextView) findViewById(R.id.etcText);
+                EditText etcEdit = (EditText) findViewById(R.id.etcEdit);
+                etcText.setVisibility(View.INVISIBLE);
+                etcEdit.setVisibility(View.VISIBLE);
 
 //            binding.etcText.setVisibility(View.INVISIBLE);
 //            binding.etcEdit.setVisibility(View.VISIBLE);
-            etcEdit.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//            etcEdit.addTextChangedListener(new TextWatcher() {
+//                @Override
+//                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//                }
+//
+//                @Override
+//                public void afterTextChanged(Editable editable) {
+//                    try {
+//                        TextView spendingText = (TextView) findViewById(R.id.spendingText);
+//                        int origin = Integer.parseInt(spendingText.getText().toString());
+//                        int addition = Integer.parseInt(editable.toString());
+//                        EditText etcEdit = (EditText) findViewById( R.id.etcEdit);
+//                        etcEdit.setText(Integer.parseInt(editable.toString()));
+//                        spendingText.setText("" + (origin + addition));
+//
+//                    } catch (Exception e) {
+//
+//                    }
+//                }
+//            });
+                //
 
-                }
-
-                @Override
-                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable editable) {
-                    try {
-                        TextView spendingText = (TextView) findViewById(R.id.spendingText);
-                        int origin = Integer.parseInt(spendingText.getText().toString());
-                        int addition = Integer.parseInt(editable.toString());
-                        EditText etcEdit = (EditText) findViewById( R.id.etcEdit);
-                        etcEdit.setText(Integer.parseInt(editable.toString()));
-                        spendingText.setText("" + (origin + addition));
-
-                    } catch (Exception e) {
-
-                    }
-                }
-            });
-            //
-
-            TextView spendingText = (TextView) findViewById(R.id.spendingText);
-            spendingText.setText(""+0);
+                TextView spendingText = (TextView) findViewById(R.id.spendingText);
+                spendingText.setText("" + 0);
 
 
-        } else {
-            mLogger.error("onCreate() / NO action string ");
-            return;
+            }
+
+            else
+
+            {
+                mLogger.error("onCreate() / NO action string ");
+                return;
+            }
+
         }
-
-    }
 
     private void initChartData(Context context) {
 
@@ -576,34 +629,22 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
     private HashMap getParsedata(Bundle bundle, int client) {
 
-
-//        String mSdPath;
-//        String ext = Environment.getExternalStorageState();
-//        if (ext.equals(Environment.MEDIA_MOUNTED)) {
-//            mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-//        } else {
-//            mSdPath = Environment.MEDIA_UNMOUNTED;
-//        }
-
-//        File file = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileName + ".gpx");
-
         mLogger.error("getParsedata() / init ");
 
-        HashMap<String, List> data = (HashMap<String, List>) bundle.getSerializable("HashMap");
 
-        int dailycount = bundle.getInt("dailyCount"); //getDailycount;
+        HashMap<String, ArrayList> data = (HashMap<String, ArrayList>) bundle.getSerializable("HashMap");
+
+        int dailycount = 1540;//bundle.getInt("dailyCount"); //getDailycount;
         double velostop = 12 / 3.6; //  km/h->m/s는 /3.6 m/s->km/h 는 *3.6
 
-        List<Double> lonList = data.get("lonList");
-        List<Double> latList = data.get("latList");
-        ;
-        List<Double> distList = data.get("disList");
-        ;
-        List<Integer> timeList = data.get("timeList");
-        ;
-        List<Integer> nightList = data.get("nightList");
-        ;
-        int[] delayTime = new int[dailycount];
+        ArrayList<Double> lonList = data.get("lonList");
+        ArrayList<Double> latList = data.get("latList");
+        ArrayList<Double> distList = data.get("distList");
+        ArrayList<Integer> timeList = data.get("timeList");
+        ArrayList<Integer> nightList = data.get("nightList");
+
+//        int[] delayTime = new int[dailycount];
+        HashMap<Integer, Integer> delayTime = new HashMap<>();
         int sumOfTime = 0;
 
 
@@ -626,46 +667,53 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
         for (int n = 0; n < dailycount; n++) {          //이벤트 지정
 
-            if (distList.get(n) / timeList.get(n) < velostop) {  //n번째 점의 속도가 정지일때  m/s  km/h?
+            if ( (  (distList.get(n) / (double)timeList.get(n))) < velostop) {  //n번째 점의 속도가 정지일때  m/s  km/h?
 
                 sumOfTime += timeList.get(n);
-                delayTime[n] = 0;
+                delayTime.put(n,0);
                 eventValue.put(n, 0);        //아무 일 없음
-
-            } else {
+//                mLogger.error("getParsedata() / " + n + "번째 점에서 정지중 총 " +sumOfTime+"초, "+ timeList.get(n) + "초 경과 (" + latList.get(n) + "," + lonList.get(n) + "), " + ( (distList.get(n) /(double) timeList.get(n)))+"m/s");
+            } else {    //이동하는 경우
                 sumOfTime += timeList.get(n);
-                delayTime[n] = sumOfTime;
-                sumOfTime = 0;
+                delayTime.put(n,sumOfTime);
 
-                if (sumOfTime >= timecutTR || sumOfTime < 300) {        //정체시간이 5분 미만이고 집에서 2km 이상 벗어났을때
+                if (sumOfTime >= timecutTR && sumOfTime < 300) {        //120초 이상 5분 미만 지체/ 집에서 2km 이상 벗어났을때
 
                     if (!outOfHome) {
                         Location.distanceBetween(latList.get(0), lonList.get(0), latList.get(n), lonList.get(n), dist); // m 단위
                         if (dist[0] > 2000) {
                             outOfHome = true;
+                            mLogger.error("getParsedata() /  "+ n +" 번째 점에서 집근처를 떠남" + latList.get(n) +","+ lonList.get(n));
                         }
                     }
 
                     if (outOfHome) {
-                        eventValue.put(n, 0);
-                    } else {
                         eventValue.put(n, 3);
                         nofTR.put(countValueTR, n);      //n위치에서 3발생
                         countValueTR++;
+                        mLogger.error("getParsedata() / 이벤트 3 - "+ n +" 번째 점");
+                    } else {
+                        eventValue.put(n, 0);
                     }
-                } else if (sumOfTime >= timecutTW) {
+                } else if (sumOfTime >= timecutTW && sumOfTime < timecutTR) {
                     eventValue.put(n, 2);
                     nofTW.put(countValueTW, n);       //n위치에서 2발생
                     countValueTW++;
-                } else if (sumOfTime >= timecutON) {
+//                    mLogger.error("getParsedata() / 이벤트 2 - "+ n +" 번째 점");
+                } else if (sumOfTime >= timecutON && sumOfTime < timecutTW) {
                     eventValue.put(n, 1);
                     nofON.put(countValueON, n);         //n위치에서 1발생
                     countValueON++;
+//                    mLogger.error("getParsedata() / 이벤트 1 - "+ n +" 번째 점");
                 }
+
+                sumOfTime = 0;
+
             }
         }//if----------------29초,60초,120초 별로 값을 배정--------
 
-        mLogger.error("getParsedata() / 값 배정됨");
+        mLogger.error("getParsedata() / 값 배정됨 countValueTR = " + countValueTR + ",cv two = " + countValueTW + ", CVone ="+ countValueON)  ;
+
         int x = client; //오늘의 접객수
         int ttakeinTR = countValueTR;
         int ttakeoffTR = countValueTR;
@@ -677,44 +725,60 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
         int[] TWrank = new int[countValueTW];
         int[] ONrank = new int[countValueON];
-        int a, b;
+        int a, b;   //어떤 변수지?
+        for (int i = 0; i < countValueTW; i++) {
+        TWrank[i] = nofTW.get(i);
+        }
+        for (int i = 0; i < countValueON; i++) {
+        ONrank[i] = nofON.get(i);
+        }
+
+        int temp ;
         for (int i = 0; i < countValueTW; i++) {
             for (int j = 0; j < countValueTW; j++) {
-                a = delayTime[nofTW.get(i)];
-                b = delayTime[nofTW.get(j)];
-                if (a < b) {                // i > j 되도록 버블소트
-                    TWrank[j] = nofTW.get(i);
-                    TWrank[i] = nofTW.get(j);
-                } else {
-                    TWrank[j] = nofTW.get(j);
-                    TWrank[i] = nofTW.get(i);
+                a = delayTime.get(TWrank[i]);
+                b = delayTime.get(TWrank[j]);
+
+                if (a > b) {                // i > j 되도록 버블소트
+                    temp = TWrank[i];
+                    TWrank[i] = TWrank[j];
+                    TWrank[j] = temp;
                 }
             }
         }
+
 
         for (int i = 0; i < countValueON; i++) {
             for (int j = 0; j < countValueON; j++) {
-                a = delayTime[nofON.get(i)];
-                b = delayTime[nofON.get(j)];
-                if (a < b) {                // i > j 되도록 버블소트
-                    TWrank[j] = nofTW.get(i);
-                    TWrank[i] = nofTW.get(j);
-                } else {
-                    TWrank[j] = nofTW.get(j);
-                    TWrank[i] = nofTW.get(i);
+                a = delayTime.get(ONrank[i]);
+                b = delayTime.get(ONrank[j]);
+
+                if (a > b) {                // i > j 되도록 버블소트
+                    temp = ONrank[i];
+                    ONrank[i] = ONrank[j];
+                    ONrank[j] = temp;
                 }
             }
         }
 
+//      for (int i = 0; i < countValueTW; i++) {
+//            mLogger.error("TWrank["+i+"]" + TWrank[i]);
+//        }
+//
+//        for (int i = 0; i < countValueON; i++) {
+//            mLogger.error("ONrank["+i+"]" + ONrank[i]);
+//        }
         mLogger.error("getParsedata() / 랭킹 ");
         //-----------------숫자 1,2,3 별로 탄건지 내린건지 나눔-----------
         // , 탑승값 = 10, 하차값 1000, ttake 탑승여부 저장, 10제곱승으로 해도 되긴하네..
-        int[] ttake = new int[dailycount + 1];
-        for (int n = 1; n <= countValueTR; n++) {
+
+        int[] ttake = new int[dailycount];
+        for (int n = 0; n < countValueTR; n++) {
             ttake[nofTR.get(n)] = 1000 + 10;
         }
 
         if (x - countValueTR > countValueTW) {                //           //모든 2는 내린거, 1의 일부가 내린거, 1 나머지의 일부가 탄거
+            mLogger.error("x - countValueTR > countValueTW");
             ttakeoffTW = countValueTW;
             ttakeoffON = x - countValueTW - countValueTR;
             ttakeinON = x - ttakeinTR - ttakeinTW;
@@ -729,6 +793,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
             }
 
         } else if (x - countValueTR < countValueTW) {              ////2의 일부가 내린거, 2의 나머지가 탄거, 1의 더 일부가 탄거
+            mLogger.error("x - countValueTR < countValueTW");
             ttakeoffTW = x - countValueTR;
             ttakeoffON = 0;
             ttakeinTW = countValueTW - ttakeoffTW;
@@ -739,19 +804,30 @@ public class HouseholdChartActivity extends AppCompatActivity {
             for (int n = 0; n < ttakeinON; n++) {
                 ttake[ONrank[n]] = 10;
             }
+
         } else {                                                    ////모든 2 가 내린거, 1 의 일부가 탄거
+
+            mLogger.error("////모든 2 가 내린거, 1 의 일부가 탄거");
+
             ttakeoffTW = countValueTW;
             ttakeoffON = 0;
             ttakeinTW = 0;
             ttakeinON = x - ttakeinTR - ttakeinTW;
-            for (int n = 1; n < countValueTW; n++) {
+            for (int n = 0; n < countValueTW; n++) {
                 ttake[nofTW.get(n)] = 1000;
             }
-            for (int n = 1; n < ttakeinON; n++) {
+            for (int n = 0; n < ttakeinON; n++) {
                 ttake[ONrank[n]] = 10;
             }
         }
 
+
+        for (int n = 0; n < dailycount; n++) {
+            if (ttake[n] != 0){
+                mLogger.error("ttake["+n+"] = " +  ttake[n]);
+            }
+        }
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
         int couplemaker = 1;
         int couplecounter = 0;
         int sumttake = 0;  ////초기값 0
@@ -762,13 +838,13 @@ public class HouseholdChartActivity extends AppCompatActivity {
         int[] minlist = new int[dailycount / 2]; // 몇개나 있는지는 모르지만 일단 최대 점/2
 
         for (int n = dailycount - 1; n >= 0; n--) {       // //맨 뒤쪽이 하차로 끝나야 한다는 조건, 1번만 실행하면됨
-            if (ttake[n] == 1010) {    //	//맨뒤가 승차로 끝나면, 그 뒤에서 가장 긴 시간을 하차로 하나 만들어줌
-
+            if ( ttake[n] == 1010 ) {    //	//맨뒤가 승차로 끝나면, 그 뒤에서 가장 긴 시간을 하차로 하나 만들어줌\
+                mLogger.error("ttake["+n+"] = " +  ttake[n]);
                 maxtime = 0;
                 for (int i = n; i < dailycount; i++) {
-                    if (maxtime <= delayTime[n]) {
+                    if (maxtime <= delayTime.get(n)) {
                         mindex = n;
-                        maxtime = delayTime[n];
+                        maxtime = delayTime.get(n);
                     }  // //sumoftime()에 n~dailycount를 넣은 값 중, 가장 큰 sumoftime을 가진 위치(n’)값을 찾아냄
                 }
 
@@ -777,21 +853,22 @@ public class HouseholdChartActivity extends AppCompatActivity {
                 ttakein = 1;
                 mincounter = 0;
 
-                numberttakeoff[ttakeoff] = n;
+                numberttakeoff[ttakeoff] = n;       // [2]는 내린 위치
+
+
+                mLogger.error("하차 만듬 => ttake["+n+"] = " +  ttake[n]);
 
                 for (int k = n; k >= 0; k--) {
                     if (ttake[k] == 1000) {
                         minlist[mincounter] = k;     // //다시 for로 가서 이어서 실행
                         mincounter++;
-                    } else {
-                        //아무일 없이 계속진행
                     }
                 }
                 int mintime = 999;
                 for (int i = n; i < dailycount; i++) {
-                    if (mintime >= delayTime[n]) {
+                    if (mintime >= delayTime.get(n)) {
                         mindex = n;
-                        mintime = delayTime[n];
+                        mintime = delayTime.get(n);
                     }  // //sumoftime()에 n~dailycount를 넣은 값 중, 가장 큰 sumoftime을 가진 위치(n’)값을 찾아냄
                 }
 
@@ -862,8 +939,8 @@ public class HouseholdChartActivity extends AppCompatActivity {
                 maxtime = 0;
 
                 for (int i = 0; i < con; i++) {
-                    if (maxtime <= delayTime[i]) {
-                        maxtime = delayTime[i];
+                    if (maxtime <= delayTime.get(i)) {
+                        maxtime = delayTime.get(i);
                     }
                 }
 
@@ -875,8 +952,8 @@ public class HouseholdChartActivity extends AppCompatActivity {
                 maxtime = 0;
 
                 for (int i = 0; i < con; i++) {
-                    if (maxtime <= delayTime[i]) {
-                        maxtime = delayTime[i];
+                    if (maxtime <= delayTime.get(i)) {
+                        maxtime = delayTime.get(i);
                     }
                 }
                 ttake[maxtime] = 10;
@@ -949,33 +1026,37 @@ public class HouseholdChartActivity extends AppCompatActivity {
         float timeC = 1;
         double twodist = 0;
         mLogger.error("getParsedata() / 돈 계산 ");
+
         for (int n = 1; n < dailycount; n++) {
             if (ttake[n] % 100 == 10) {    //	100으로 나눠서 나머지가 10이면
 
                 moneyStart = n; // 승차지점
-
-                for (int k = n; ttake[k] >= 1000; k++) { //하자지점
-                    moneyEnd = k;
+                boolean out = false;
+                for (int i = n; !out; i++) { //하자지점
+                    if(ttake[i] >= 1000){
+                        moneyEnd = i;
+                        out = true;
+                    }
+                }
+                mLogger.error("getParsedata_moneyStart = " + moneyStart + "moneyEnd = " + moneyEnd);
+                for (int j = moneyStart; j < moneyEnd; j++) {
+                    moneyofdist += distList.get(j);
                 }
 
-                for (int k = moneyStart; k < moneyEnd; k++) {
-                    moneyofdist += distList.get(k);
-                }
-
-                if (moneyofdist >= 2) {
+                if (moneyofdist >= 2000 ) { //2000m이상 주행시
                     for (int m = moneyStart; twodist <= 2000; m++) {
-                        twodist = twodist + distList.get(m);
-                        moneyRestart = m;
+                        twodist += distList.get(m);
+                        moneyRestart = m;       //2km가 되는 지점
                     }
 
-                    for (a = moneyRestart; a <= moneyEnd; a++) { //시간이 새벽인가 아닌가
+                    for (a = moneyRestart; a <= moneyEnd; a++) {
 
                         if (distList.get(a) / timeList.get(a) > 4.17) {       //km/s? m/s? 15km/h == 4.166
                             moneyEle = (int) (distList.get(a) * 100000) / 142;
                         } else {
                             moneyEle = timeList.get(a) * 100 / 35;
                         }
-                        moneySum = (int) (moneySum + (1 + 0.2 * nightList.get(a)) * moneyEle);
+                        moneySum = moneySum +(int) ((1 + 0.2 * nightList.get(a)) * moneyEle);
                     }
                 } else {
                     break;    //최종
@@ -984,6 +1065,8 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
                 moneyBigele = (int) (moneyBigele + timeC * basicmoney + moneySum);  //계속 더해서 최종요금 계산
                 moneyBigdist = moneyBigdist + moneyofdist;
+            }else{
+//                mLogger.error("getParsedata() / 나머지가 10이 아님 ttake["+n+"] = " + ttake[n]);
             }
         }
 
@@ -991,8 +1074,10 @@ public class HouseholdChartActivity extends AppCompatActivity {
         result.put("money", moneyBigele);
         result.put("moneyDist", moneyBigdist);
 
-        mLogger.error("getParsedata() / 종료 ");
+        mLogger.error("getParsedata() / 종료 money = " + moneyBigele + "moneydist = " + moneyBigdist);
         return result;
     }
+
+
 }
 

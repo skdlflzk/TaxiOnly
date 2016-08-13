@@ -225,9 +225,9 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             intent.putExtra("flag", 1000);  //클릭하면 서비스를 실행한다
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
         } else if (state == 3) {
-            intent.putExtra("flag", 4444);  //서비스가 죽었다 누르면 가계부를 작성하러감
+            intent.putExtra("flag", 4444);  //서비스가 종료됨 / (가계부를 작성하러감)
             builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
-        } else {
+        } else {                        //state==2
             intent.putExtra("flag", 0);
             vi[0] = 0;
             vi[1] = 0;
@@ -253,6 +253,8 @@ private Logger mLogger = Logger.getLogger(NotificationBroadcast.class);
             flag = Notification.FLAG_NO_CLEAR;
 
         } else if ( state == 2 ) { // 운행 중 표시
+
+         //TODO 언제시작했고, 운행종료까지 몇분이 남았는지!
 
             tickText = "운행 중 입니다 오늘도 안전운전 되세요!";
 

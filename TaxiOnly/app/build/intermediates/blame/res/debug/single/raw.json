@@ -1,6 +1,14 @@
 [
     {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\data2",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\raw\\data2"
+    },
+    {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\partinfo",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\raw\\partinfo"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\data",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\raw\\data"
     }
 ]

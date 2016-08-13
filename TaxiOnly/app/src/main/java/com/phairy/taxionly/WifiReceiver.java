@@ -109,7 +109,7 @@ public class WifiReceiver extends BroadcastReceiver {
                             mLogger.warn("WifiReceiver:onSuccess but result = "+ result);
                         }
 
-                        Toast.makeText(context,""+s,Toast.LENGTH_LONG).show();
+//                        Toast.makeText(context,""+s,Toast.LENGTH_LONG).show();
 
 //                        String str="";
 //                        for(int i1= 0; i1 < bytes.length; i1++){

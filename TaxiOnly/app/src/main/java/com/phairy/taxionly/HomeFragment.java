@@ -35,8 +35,15 @@ import com.phairy.taxionly.databinding.HomeFragmentBinding;
 
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
 
 
 public class HomeFragment extends Fragment {
@@ -70,6 +77,8 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+                view.setEnabled(false);
+//                Toast.makeText(context,"파일 파싱 시작!",Toast.LENGTH_SHORT).show();
 /*
                 AsyncHttpSet asyncHttpSet = new AsyncHttpSet(true);
                 RequestParams params = new RequestParams();
@@ -214,26 +223,147 @@ public class HomeFragment extends Fragment {
                     }
                 });
 */
-//                Location mlocation;
-//                mlocation = GpsCatcher.getLocation();
-//
-//                try {
-//                    if (mlocation != null) {
-//                        mLogger.error("onTakeButton_ (" + mlocation.getLatitude() + "," + mlocation.getLongitude() + ")");
-//
-//                    }
-//                } catch (Exception e) {
-//                    mLogger.error("onTakeButton_위치 받기 실패");
-//
-//                }
-//
-//                try {
-//                    Toast.makeText(getActivity(), mlocation.getSpeed() + "m/s로 총" + GpsCatcher.distance + "m 이동함", Toast.LENGTH_SHORT).show();
-////                        openMap(mlocation.getLatitude(), mlocation.getLongitude());
-//
-//                } catch (Exception e) {
-//                    Toast.makeText(getActivity(), "정보가 아직 수신되지 않음", Toast.LENGTH_SHORT).show();
-//                }
+                Runnable run = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+
+                            ArrayList<Double> lonList = new ArrayList<>();
+                            ArrayList<Double> latList = new ArrayList<>();
+                            ArrayList<Double> distList = new ArrayList<>();
+                            ArrayList<Integer> nightList = new ArrayList<>();
+                            ArrayList<Integer> timeList = new ArrayList<>();
+                            int distance=0;
+                            mLogger.debug("파싱 시작");
+
+                            String data = null;
+                            InputStream inputStream = getResources().openRawResource(R.raw.data2);
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            mLogger.debug("파일 지명");
+
+                            try {
+                                int i = inputStream.read();
+                                while (i != -1) {
+                                    byteArrayOutputStream.write(i);
+                                    i = inputStream.read();
+                                }
+
+                                data = new String(byteArrayOutputStream.toByteArray(), "UTF-8");
+                                inputStream.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mLogger.debug("data 파일 읽어옴");
+                            StringTokenizer entertoken = new StringTokenizer(data, "\n");
+
+                            StringTokenizer tabtoken = new StringTokenizer(entertoken.nextToken(), "\t");    //lat
+                            double lattitude1 = Double.parseDouble(tabtoken.nextToken());//lattitude
+                            double longitude1 = Double.parseDouble(tabtoken.nextToken());//longitude
+
+                            double lattitude2;
+                            double longitude2;
+
+                            String[] strs = tabtoken.nextToken().split(":");
+                            String h = strs[0];
+                            String m = strs[1];
+                            String s = strs[2];
+
+                            int dailycount = entertoken.countTokens();
+
+                            mLogger.debug("초기값 완료 dailycount = " + dailycount + "(" + lattitude1 + "," + longitude1 +")" );
+
+                            Calendar c1 = Calendar.getInstance();
+
+                            c1.set(Calendar.HOUR_OF_DAY, Integer.parseInt(h));   //1~24 범위(아마)
+                            c1.set(Calendar.MINUTE, Integer.parseInt(m));
+                            c1.set(Calendar.SECOND, Integer.parseInt(s));
+
+                            int intervalTime = 0;
+                            for (int i = 0; i < entertoken.countTokens(); i++) {
+                                tabtoken = new StringTokenizer(entertoken.nextToken(), "\t");    //lat
+
+                                lattitude2 = Double.parseDouble(tabtoken.nextToken());//lattitude
+                                longitude2 = Double.parseDouble(tabtoken.nextToken());//longitude
+
+
+                                strs = tabtoken.nextToken().split(":");
+                                h = strs[0];
+                                m = strs[1];
+                                s = strs[2];
+
+                                Calendar c2 = Calendar.getInstance();
+
+                                if(Integer.parseInt(h) == 0){
+                                    int t = 24;
+                                    c2.set(Calendar.HOUR_OF_DAY,t);
+                                }else{
+                                    c2.set(Calendar.HOUR_OF_DAY, Integer.parseInt(h));   //1~24 범위(아마)
+                                }
+                                c2.set(Calendar.MINUTE, Integer.parseInt(m));
+                                c2.set(Calendar.SECOND, Integer.parseInt(s));
+
+                                intervalTime = (int) (c2.getTimeInMillis() - c1.getTimeInMillis()) / 1000; //초단위로 환산
+
+                                if (intervalTime < 0) {
+                                    c2.set(Calendar.HOUR_OF_DAY, Integer.parseInt(h)+1);   //1~24 범위(아마)  24
+
+                                    intervalTime = (int) (c2.getTimeInMillis() - c1.getTimeInMillis()) / 1000; //초단위로 환산
+                                }
+
+                                float[] result = new float[3];
+                                Location.distanceBetween(lattitude1, longitude1, lattitude2, longitude2, result); // m 단위
+                                double intervalDistance = result[0];
+                                distance +=intervalDistance;
+
+                                timeList.add(intervalTime);                                                                                // Tn+1 - Tn ,second
+                                lonList.add(longitude2);                                                                                          // yn+1
+                                latList.add(lattitude2);                                                                                          // xn+1
+                                distList.add(intervalDistance);                                                                           // (xn,yn)~(xn+1,yn+1), ,meter
+                                if (c2.get(Calendar.HOUR_OF_DAY) < 4 || c2.get(Calendar.HOUR_OF_DAY) > 0) { //할증
+                                    nightList.add(1);
+                                } else {
+                                    nightList.add(0);
+                                }
+
+//                                    mLogger.debug("좌표 = (" + lattitude2 + ", " + longitude2 + "), 이동 거리 = " + intervalDistance + "m, 속도 = " + 3.6 * intervalDistance / intervalTime + "m/s, 총 거리 = " + distance + ", 지금 시각 = " + h + "시 " + m + "분 " + s + "초 , " + intervalTime + "초 간격");
+
+                                c1 = c2;
+                                lattitude1 = lattitude2;
+                                longitude1 = longitude2;
+
+                            }
+                            mLogger.error(lonList.size() + "개의 분석 끄");
+                            HashMap<String, ArrayList> hashMap = new HashMap<>();
+                            hashMap.put("lonList", lonList);
+                            hashMap.put("latList", latList);
+                            hashMap.put("distList", distList);
+                            hashMap.put("timeList", timeList);
+                            hashMap.put("nightList", nightList);
+
+                            Bundle bundle = new Bundle();
+                            bundle.putSerializable("HashMap", hashMap);
+                            bundle.putInt("action", 1234);
+                            bundle.putInt("dailyCount", dailycount);
+                            bundle.putInt("distance", distance);
+
+
+                            Intent intent1 = new Intent(getActivity().getApplicationContext(), HouseholdChartActivity.class);
+                            intent1.putExtra("flag", 123); // 주행 끝 데이터 전달
+                            intent1.putExtra("data", bundle);      //hashmap만을 전달하는 셈
+                            intent1.setAction("CREATE");
+                            startActivity(intent1);
+
+                        } catch (Exception e) {
+
+                            e.printStackTrace();
+                            mLogger.debug("error while parsing data");
+                        }
+                    }
+                };
+                Thread t = new Thread(run);
+                t.run();
+                mLogger.error("읏!");
+
             }
         });
 

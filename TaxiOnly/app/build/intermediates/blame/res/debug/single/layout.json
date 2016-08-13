@@ -68,12 +68,12 @@
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.1\\res\\layout\\abc_action_bar_up_container.xml"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_alarm.xml",
-        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\activity_alarm.xml"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_main.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\activity_main.xml"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\activity_alarm.xml",
+        "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\layout\\activity_alarm.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\layout\\design_navigation_item_header.xml",

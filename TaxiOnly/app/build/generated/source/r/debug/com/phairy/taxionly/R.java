@@ -2054,9 +2054,9 @@ containing a value of this type.
         public static final int center_vertical=0x7f0d0020;
         public static final int checkbox=0x7f0d0052;
         public static final int chronometer=0x7f0d00b3;
-        public static final int clientCaption=0x7f0d008b;
-        public static final int clientEdit=0x7f0d008a;
-        public static final int clientText=0x7f0d008c;
+        public static final int clientCaption=0x7f0d008c;
+        public static final int clientEdit=0x7f0d0088;
+        public static final int clientText=0x7f0d008d;
         public static final int clip_horizontal=0x7f0d0021;
         public static final int clip_vertical=0x7f0d0022;
         public static final int collapseActionView=0x7f0d002f;
@@ -2070,9 +2070,9 @@ containing a value of this type.
         public static final int default_activity_button=0x7f0d0043;
         public static final int dialog=0x7f0d0033;
         public static final int disableHome=0x7f0d0010;
-        public static final int distanceCaption=0x7f0d0088;
+        public static final int distanceCaption=0x7f0d0089;
         public static final int distanceEdit=0x7f0d0087;
-        public static final int distanceText=0x7f0d0089;
+        public static final int distanceText=0x7f0d008a;
         public static final int dropdown=0x7f0d0034;
         public static final int edit=0x7f0d009e;
         public static final int editText1=0x7f0d0074;
@@ -2082,9 +2082,9 @@ containing a value of this type.
         public static final int end_padder=0x7f0d00b8;
         public static final int enterAlways=0x7f0d0017;
         public static final int enterAlwaysCollapsed=0x7f0d0018;
-        public static final int etcCaption=0x7f0d009a;
-        public static final int etcEdit=0x7f0d0099;
-        public static final int etcText=0x7f0d009b;
+        public static final int etcCaption=0x7f0d0098;
+        public static final int etcEdit=0x7f0d0094;
+        public static final int etcText=0x7f0d0099;
         public static final int exitUntilCollapsed=0x7f0d0019;
         public static final int expand_activities_button=0x7f0d0041;
         public static final int expanded_menu=0x7f0d0051;
@@ -2092,21 +2092,21 @@ containing a value of this type.
         public static final int fill_horizontal=0x7f0d0025;
         public static final int fill_vertical=0x7f0d0026;
         public static final int fixed=0x7f0d0035;
-        public static final int foodCaption=0x7f0d0097;
-        public static final int foodEdit=0x7f0d0096;
-        public static final int foodText=0x7f0d0098;
-        public static final int gasCaption=0x7f0d0094;
-        public static final int gasEdit=0x7f0d0093;
-        public static final int gasText=0x7f0d0095;
+        public static final int foodCaption=0x7f0d0095;
+        public static final int foodEdit=0x7f0d0091;
+        public static final int foodText=0x7f0d0096;
+        public static final int gasCaption=0x7f0d0092;
+        public static final int gasEdit=0x7f0d008b;
+        public static final int gasText=0x7f0d0093;
         public static final int home=0x7f0d0005;
         public static final int homeAsUp=0x7f0d0011;
         public static final int homefragment=0x7f0d0082;
         public static final int icon=0x7f0d0045;
         public static final int ifRoom=0x7f0d0030;
         public static final int image=0x7f0d0042;
-        public static final int incomeCaption=0x7f0d008e;
-        public static final int incomeEdit=0x7f0d008d;
-        public static final int incomeText=0x7f0d008f;
+        public static final int incomeCaption=0x7f0d009a;
+        public static final int incomeEdit=0x7f0d0097;
+        public static final int incomeText=0x7f0d009b;
         public static final int info=0x7f0d00b7;
         public static final int left=0x7f0d0027;
         public static final int line1=0x7f0d00b1;
@@ -2161,9 +2161,9 @@ containing a value of this type.
         public static final int showTitle=0x7f0d0015;
         public static final int snackbar_action=0x7f0d00a1;
         public static final int snackbar_text=0x7f0d00a0;
-        public static final int spendingCaption=0x7f0d0091;
-        public static final int spendingEdit=0x7f0d0090;
-        public static final int spendingText=0x7f0d0092;
+        public static final int spendingCaption=0x7f0d008f;
+        public static final int spendingEdit=0x7f0d008e;
+        public static final int spendingText=0x7f0d0090;
         public static final int split_action_bar=0x7f0d0009;
         public static final int src_atop=0x7f0d003a;
         public static final int src_in=0x7f0d003b;
@@ -2265,7 +2265,9 @@ containing a value of this type.
         public static final int ic_launcher=0x7f030000;
     }
     public static final class raw {
-        public static final int partinfo=0x7f060000;
+        public static final int data=0x7f060000;
+        public static final int data2=0x7f060001;
+        public static final int partinfo=0x7f060002;
     }
     public static final class string {
         public static final int abc_action_bar_home_description=0x7f070000;

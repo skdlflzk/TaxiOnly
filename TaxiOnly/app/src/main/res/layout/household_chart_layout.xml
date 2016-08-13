@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="98dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/border"
         android:orientation="vertical"
         android:weightSum="1"
@@ -22,7 +22,13 @@
             android:layout_gravity="center_horizontal"
             android:text="날짜"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:orientation="vertical"
+        android:weightSum="1">
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -38,6 +44,7 @@
                 android:gravity="center"
                 android:visibility="invisible"
                 android:layout_gravity="end|center_vertical"
+                android:nextFocusDown="@+id/clientEdit"
                 android:text="0"  />
 
             <TextView
@@ -73,7 +80,9 @@
                 android:visibility="invisible"
                 android:layout_gravity="end|center_vertical"
                 android:inputType="number"
-                android:text="0" />
+                android:nextFocusDown="@+id/gasEdit"
+                android:text="0"
+                />
 
             <TextView
                     android:id="@+id/clientCaption"
@@ -99,39 +108,6 @@
         android:background="@drawable/border"
         android:orientation="vertical"
         android:weightSum="1">
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:orientation="horizontal" >
-
-        <EditText
-            android:gravity="center"
-            android:visibility="invisible"
-            android:id="@+id/incomeEdit"
-            android:ems="10"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|center_vertical"
-            android:inputType="number"
-            android:text="0" />
-
-        <TextView
-            android:id="@+id/incomeCaption"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="오늘의 수익"
-
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:layout_gravity="left|center_vertical" />
-
-        <TextView
-            android:layout_width="212dp"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:gravity="center"
-            android:id="@+id/incomeText"
-            android:layout_gravity="right|center_vertical" />
-    </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -193,7 +169,9 @@
                 android:ems="8"
                 android:text="0"
                 android:inputType="number"
-                android:layout_gravity="right|center_vertical" />
+                android:layout_gravity="right|center_vertical"
+                android:nextFocusDown="@+id/foodEdit"
+                />
 
             <TextView
                 android:id="@+id/gasCaption"
@@ -227,6 +205,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.37"
                 android:inputType="number"
+                android:nextFocusDown="@+id/etcEdit"
                 android:layout_gravity="right|center_vertical" />
 
             <TextView
@@ -259,6 +238,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right|center_vertical"
                 android:text="0"
+                android:nextFocusDown="@+id/incomeEdit"
                 android:inputType="number" />
 
             <TextView
@@ -278,7 +258,48 @@
                 android:layout_gravity="right|center_vertical" />
         </FrameLayout>
     </LinearLayout>
-    <FrameLayout
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:orientation="horizontal" >
+
+            <EditText
+                android:gravity="center"
+                android:visibility="invisible"
+                android:id="@+id/incomeEdit"
+                android:ems="10"
+                android:imeOptions="actionDone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right|center_vertical"
+                android:inputType="number"
+                android:text="0" />
+
+            <TextView
+                android:id="@+id/incomeCaption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="오늘의 수익"
+
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="left|center_vertical" />
+
+            <TextView
+                android:layout_width="212dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center"
+                android:id="@+id/incomeText"
+                android:layout_gravity="right|center_vertical" />
+        </FrameLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        android:orientation="vertical"
+        android:weightSum="1">
+        <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_gravity="center_horizontal"
