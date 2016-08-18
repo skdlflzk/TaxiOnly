@@ -22,7 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.phairy.taxionly.databinding.HouseholdChartLayoutBinding;
+//import com.phairy.taxionly.databinding.HouseholdChartLayoutBinding;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Text;
@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by aa on 2016-07-13.
@@ -41,7 +42,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
     Context context;
     private Logger mLogger = Logger.getLogger(HouseholdChartActivity.class);
-    HouseholdChartLayoutBinding binding;
+//    HouseholdChartLayoutBinding binding;
 
     SQLiteDatabase database;
     String DATABASENAME = "CHART";
@@ -72,7 +73,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
         context = this;
 
         LayoutInflater inflater = LayoutInflater.from(this);
-        binding = DataBindingUtil.setContentView(this, R.layout.household_chart_layout);
+//        binding = DataBindingUtil.setContentView(this, R.layout.household_chart_layout);
         setContentView(inflater.inflate(R.layout.household_chart_layout, null));
 
         String TAG = HouseholdChartActivity.class.getSimpleName();
@@ -546,18 +547,18 @@ public class HouseholdChartActivity extends AppCompatActivity {
         } else if (action.equals("EDIT")) {    //수정 옵션에서의 확인 == update
             try {
 
-                int distance = Integer.parseInt(binding.distanceEdit.getText().toString());
-                int client = Integer.parseInt(binding.clientEdit.getText().toString());
-                int income = Integer.parseInt(binding.incomeEdit.getText().toString());
-                int spending = Integer.parseInt(binding.spendingEdit.getText().toString());
-                //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
-                int gas = Integer.parseInt(binding.gasEdit.getText().toString());
-                int food = Integer.parseInt(binding.foodEdit.getText().toString());
-//                int etc = Integer.parceInt(etcEdit.getText().toString());
+//                int distance = Integer.parseInt(binding.distanceEdit.getText().toString());
+//                int client = Integer.parseInt(binding.clientEdit.getText().toString());
+//                int income = Integer.parseInt(binding.incomeEdit.getText().toString());
+//                int spending = Integer.parseInt(binding.spendingEdit.getText().toString());
+//                //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
+//                int gas = Integer.parseInt(binding.gasEdit.getText().toString());
+//                int food = Integer.parseInt(binding.foodEdit.getText().toString());
+////                int etc = Integer.parceInt(etcEdit.getText().toString());
 
 //                String spendata = ",1-" + gas + ",2-" + food + ",3-"+ etc+"/";
-
-                int netGain = income - spending;
+//
+//                int netGain = income - spending;
 
                 try {
                     database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
@@ -586,43 +587,43 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
     public void onEditClicked(View v) {     //수정버튼      // SHOW->EDIT
 
-        binding.distanceText.setVisibility(View.INVISIBLE);
-        binding.distanceEdit.setVisibility(View.VISIBLE);
-
-        binding.clientText.setVisibility(View.INVISIBLE);
-        binding.clientEdit.setVisibility(View.VISIBLE);
-
-        binding.incomeText.setVisibility(View.INVISIBLE);
-        binding.incomeEdit.setVisibility(View.VISIBLE);
-
-        binding.spendingText.setVisibility(View.INVISIBLE);
-        binding.spendingEdit.setVisibility(View.VISIBLE);
-
-        //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
-        binding.gasText.setVisibility(View.INVISIBLE);
-        binding.gasEdit.setVisibility(View.VISIBLE);
-
-        binding.foodText.setVisibility(View.INVISIBLE);
-        binding.foodEdit.setVisibility(View.VISIBLE);
-
-        int distance = Integer.parseInt(binding.distanceText.getText().toString());
-        int client = Integer.parseInt(binding.clientText.getText().toString());
-        int income = Integer.parseInt(binding.incomeText.getText().toString());
-        int spending = Integer.parseInt(binding.spendingText.getText().toString());
-        //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
-        int gas = Integer.parseInt(binding.gasText.getText().toString());
-
-        int food = Integer.parseInt(binding.foodText.getText().toString());
-
-        String etc = ",1-" + gas + ",2-" + food + "/";
-        //
-
-        int netGain = income - spending;
-
-        binding.distanceEdit.setText(distance);
-        binding.clientEdit.setText(client);
-        binding.incomeEdit.setText(income);
-        binding.spendingEdit.setText(spending);
+//        binding.distanceText.setVisibility(View.INVISIBLE);
+//        binding.distanceEdit.setVisibility(View.VISIBLE);
+//
+//        binding.clientText.setVisibility(View.INVISIBLE);
+//        binding.clientEdit.setVisibility(View.VISIBLE);
+//
+//        binding.incomeText.setVisibility(View.INVISIBLE);
+//        binding.incomeEdit.setVisibility(View.VISIBLE);
+//
+//        binding.spendingText.setVisibility(View.INVISIBLE);
+//        binding.spendingEdit.setVisibility(View.VISIBLE);
+//
+//        //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
+//        binding.gasText.setVisibility(View.INVISIBLE);
+//        binding.gasEdit.setVisibility(View.VISIBLE);
+//
+//        binding.foodText.setVisibility(View.INVISIBLE);
+//        binding.foodEdit.setVisibility(View.VISIBLE);
+//
+//        int distance = Integer.parseInt(binding.distanceText.getText().toString());
+//        int client = Integer.parseInt(binding.clientText.getText().toString());
+//        int income = Integer.parseInt(binding.incomeText.getText().toString());
+//        int spending = Integer.parseInt(binding.spendingText.getText().toString());
+//        //기본 2개 (만약 추가가 된다면, id를 지정하여 동적으로 계산)
+//        int gas = Integer.parseInt(binding.gasText.getText().toString());
+//
+//        int food = Integer.parseInt(binding.foodText.getText().toString());
+//
+//        String etc = ",1-" + gas + ",2-" + food + "/";
+//        //
+//
+//        int netGain = income - spending;
+//
+//        binding.distanceEdit.setText(distance);
+//        binding.clientEdit.setText(client);
+//        binding.incomeEdit.setText(income);
+//        binding.spendingEdit.setText(spending);
         //binding.etc.setText(etc);
     }//onEditClicked
 
@@ -712,7 +713,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
             }
         }//if----------------29초,60초,120초 별로 값을 배정--------
 
-        mLogger.error("getParsedata() / 값 배정됨 countValueTR = " + countValueTR + ",cv two = " + countValueTW + ", CVone ="+ countValueON)  ;
+        mLogger.error("getParsedata() / 값 배정됨 countValueTR = " + countValueTR + ",countValueTW = " + countValueTW + ", countValueON ="+ countValueON)  ;
 
         int x = client; //오늘의 접객수
         int ttakeinTR = countValueTR;
@@ -780,8 +781,9 @@ public class HouseholdChartActivity extends AppCompatActivity {
         if (x - countValueTR > countValueTW) {                //           //모든 2는 내린거, 1의 일부가 내린거, 1 나머지의 일부가 탄거
             mLogger.error("x - countValueTR > countValueTW");
             ttakeoffTW = countValueTW;
+            ttakeinTW = 2 * (x - ttakeoffTR)-ttakeoffTW;
             ttakeoffON = x - countValueTW - countValueTR;
-            ttakeinON = x - ttakeinTR - ttakeinTW;
+            ttakeinON = 2*(x-ttakeoffTR)-ttakeoffTW-ttakeinTW;
             for (int n = 0; n < countValueTW; n++) {
                 ttake[nofTW.get(n)] = 1000;
             }
@@ -796,9 +798,20 @@ public class HouseholdChartActivity extends AppCompatActivity {
             mLogger.error("x - countValueTR < countValueTW");
             ttakeoffTW = x - countValueTR;
             ttakeoffON = 0;
-            ttakeinTW = countValueTW - ttakeoffTW;
-            ttakeinON = x - ttakeinTR - ttakeinTW;
-            for (int n = 0; n < ttakeinTW; n++) {
+            if(ttakeoffTW*2 >countValueTW){
+                ttakeinTW = countValueTW - ttakeoffTW;
+                ttakeinON = x - ttakeinTR - ttakeinTW;
+            }
+            else{
+                ttakeinTW = 2 * (x - ttakeoffTR)-ttakeoffTW;
+                ttakeinON = 2*(x-ttakeoffTR)-ttakeoffTW-ttakeinTW;
+            }
+
+            mLogger.error("ttakeinON = " + ttakeinON + " x = " + x + ", countValueTR = " + countValueTR + ", countvalueTW = " + countValueTW + ", ttakiinTR = " + ttakeinTR + ", ttakinTW = " + ttakeinTW + "ttakeoffTW = " + ttakeoffTW);
+            for (int n = 0; n < ttakeoffTW; n++) {
+                ttake[TWrank[n]] = 1000;
+            }
+            for (int n = ttakeoffTW; n < ttakeoffTW+ttakeinTW; n++) {
                 ttake[TWrank[n]] = 10;
             }
             for (int n = 0; n < ttakeinON; n++) {
@@ -813,6 +826,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
             ttakeoffON = 0;
             ttakeinTW = 0;
             ttakeinON = x - ttakeinTR - ttakeinTW;
+
             for (int n = 0; n < countValueTW; n++) {
                 ttake[nofTW.get(n)] = 1000;
             }
@@ -821,7 +835,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
             }
         }
 
-
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ초기 승하차 값 지정ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
         for (int n = 0; n < dailycount; n++) {
             if (ttake[n] != 0){
                 mLogger.error("ttake["+n+"] = " +  ttake[n]);
@@ -835,60 +849,88 @@ public class HouseholdChartActivity extends AppCompatActivity {
         int maxtime = 0, mindex = 0, ttakeoff = 0, ttakein = 0, mincounter = 0;
 
         int[] numberttakeoff = new int[dailycount];
-        int[] minlist = new int[dailycount / 2]; // 몇개나 있는지는 모르지만 일단 최대 점/2
+        HashMap<Integer, Integer> minlist = new HashMap<>();
+//        int[] minlist = new int[dailycount / 2]; // 몇개나 있는지는 모르지만 일단 최대 점/2
 
-        for (int n = dailycount - 1; n >= 0; n--) {       // //맨 뒤쪽이 하차로 끝나야 한다는 조건, 1번만 실행하면됨
-            if ( ttake[n] == 1010 ) {    //	//맨뒤가 승차로 끝나면, 그 뒤에서 가장 긴 시간을 하차로 하나 만들어줌\
-                mLogger.error("ttake["+n+"] = " +  ttake[n]);
+        boolean firs = true;
+        for (int n = dailycount - 1; n >= 0 && firs; n--) {       // //맨 뒤쪽이 하차로 끝나야 한다는 조건, 1번만 실행하면됨
+            if ( ttake[n] == 1010 ) {    //	//맨뒤가 승차로 끝나면, 그 뒤에서 가장 긴 시간을 하차로 하나 만들어줌
+                mLogger.error("if ttake["+n+"] == 1010");
                 maxtime = 0;
-                for (int i = n; i < dailycount; i++) {
-                    if (maxtime <= delayTime.get(n)) {
-                        mindex = n;
-                        maxtime = delayTime.get(n);
+                for (int i = n+1; i < dailycount; i++) {
+                    if (maxtime < delayTime.get(i)) {
+                        mLogger.error("현재 mindex = "+i+", maxtime = "+maxtime);
+                        mindex = i;
+                        maxtime = delayTime.get(i);
+
                     }  // //sumoftime()에 n~dailycount를 넣은 값 중, 가장 큰 sumoftime을 가진 위치(n’)값을 찾아냄
                 }
-
-                ttake[n] = 1000;
+                mLogger.error("가장 큰 mindex = "+mindex+", maxtime = "+maxtime);
+                ttake[mindex] = 1000;
                 ttakeoff = 2;  //   //하+승차가 최우선이므로 유지하면서, 뒤에 하차를 하나 만듦…!!앞에 하차 하나 지워야됨…
                 ttakein = 1;
                 mincounter = 0;
 
                 numberttakeoff[ttakeoff] = n;       // [2]는 내린 위치
 
+                mLogger.error("하차 지정 => ttake["+n+"] = " +  ttake[n]);
 
-                mLogger.error("하차 만듬 => ttake["+n+"] = " +  ttake[n]);
-
-                for (int k = n; k >= 0; k--) {
+                for (int k = n-1; k >= 0; k--) {
                     if (ttake[k] == 1000) {
-                        minlist[mincounter] = k;     // //다시 for로 가서 이어서 실행
+                        minlist.put(mincounter, k);     // //다시 for로 가서 이어서 실행
                         mincounter++;
+                        mLogger.error("mincounter = " +mincounter + ", k = " + k);
                     }
                 }
+
                 int mintime = 999;
-                for (int i = n; i < dailycount; i++) {
-                    if (mintime >= delayTime.get(n)) {
-                        mindex = n;
-                        mintime = delayTime.get(n);
+//                int tem=0;
+                for (int i = 0; i < minlist.size(); i++) {
+                    if (mintime > delayTime.get(minlist.get(i)) && delayTime.get(minlist.get(i)) != 0) {
+                        mindex =  minlist.get(i);
+                        mintime = delayTime.get(minlist.get(i));
                     }  // //sumoftime()에 n~dailycount를 넣은 값 중, 가장 큰 sumoftime을 가진 위치(n’)값을 찾아냄
                 }
+                if(mintime == 999){
+                    mindex = n;
+                    mLogger.error("mintime == 999");
+                }
 
-                //   //sumoftime()에 minlist(1)~minlist(mincounter)를 넣은 값 중, 가장 작은 sumoftime을 가진 위치(n’)값을 찾아냄
+                //sumoftime()에 minlist(1)~minlist(mincounter)를 넣은 값 중, 가장 작은 sumoftime을 가진 위치(n’)값을 찾아냄
                 ttake[mindex] = 0;
-            } else if (ttake[n] == 10) {
-                ttake[n] = 0;
-                ttakeoff = 0;   //  //승차가 최하위이므로, 아예 없애고 추후 앞쪽 하차지점 앞에 승차를 추가
-                ttakein = 0;
-                numberttakeoff[ttakeoff] = n;
+                mLogger.error("최소 mintime = " +mintime+" ttake[" +mindex+"]에 0을 저장");
+                for (int t = 0; t < dailycount; t++) {
+                    if (ttake[t] != 0){
+                        mLogger.error("ttake["+t+"] = " +  ttake[t]);
+                    }
+                }
 
+                n = dailycount-1;
+
+            } else if (ttake[n] == 10) {
+                mLogger.error("if ttake["+n+"] == 10 ! 0으로 만들고 다음으로...");
+//                int t = ttakeinON;
+//                while ( ONrank[t] >= n){
+//                    t--;
+//                }
+//
+                ttake[n] = 0;
+//
+//                mLogger.error("onrank["+t+"] = " + ONrank[t] + ". ttake[ONrank[t]] = " + ttake[ONrank[t]]);
+//                ttakeoff = 0;   //  //승차가 최하위이므로, 아예 없애고 추후 앞쪽 하차지점 앞에 승차를 추가
+//                ttakein = 0;
+//                numberttakeoff[ttakeoff] = n;
+//                firs = false;
             } else if (ttake[n] == 1000) {
+                mLogger.error("if ttake["+n+"] == 1000! 하차가 마지막이므로 일단 아웃");
                 ttakeoff = 1;     //하차면 카운트만 하고 그냥 넘어감
                 numberttakeoff[ttakeoff] = n;
+                firs = false;
             } //    //맨 뒤 정리 하는거는 위에 셋 중 하나 발생하면 바로 종료
-            else {
-                //    //그냥 return 쓰면되나? 아무일도 없는건?
-            }
         }
-        mLogger.error("getParsedata() / 재배열");
+
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ맨 뒤 값을 하차로 지정ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+
         ////----	그 다음 이어서…, n값 초기화 안하고 이어서 써도 될 것 같은데? 뭐 변수로 저장한다음 불러야되나?
         for (int k = dailycount - 1; k >= 0; k--) {        ////중간값들에 대한 조건, 맨처음될때까지 반복실행해야함
             if (ttake[k] > 0) {
@@ -926,8 +968,14 @@ public class HouseholdChartActivity extends AppCompatActivity {
                 }
             }
         }
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ홀짝수 재배열 결과ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+        for (int n = 0; n < dailycount; n++) {
+            if (ttake[n] != 0){
+                mLogger.error("ttake["+n+"] = " +  ttake[n]);
+            }
+        }
 
-
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ처음을 승차로 지정ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
         int con;
 
         //ttake[con]??
@@ -965,7 +1013,16 @@ public class HouseholdChartActivity extends AppCompatActivity {
         int difttakecount = ttakeoff - ttakein;
         int[] lastcheck = new int[dailycount];
         int[] lastttake = new int[dailycount];
-        mLogger.error("getParsedata() / 검토 ");
+
+
+        for (int n = 0; n < dailycount; n++) {
+            if (ttake[n] != 0){
+                mLogger.error("ttake["+n+"] = " +  ttake[n]);
+            }
+        }
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+
+
         if (difttakecount > 0) {             //마지막 검토, 승하차수 맞추기, 위에 꺼가 모든걸 다 포함하는지 알수가 없어서 썼음
             a = 0;
             for (int k = con; k < dailycount; k++) {
@@ -1031,13 +1088,18 @@ public class HouseholdChartActivity extends AppCompatActivity {
             if (ttake[n] % 100 == 10) {    //	100으로 나눠서 나머지가 10이면
 
                 moneyStart = n; // 승차지점
+                moneyEnd = moneyStart;
                 boolean out = false;
-                for (int i = n; !out; i++) { //하자지점
+                for (int i = n; i < ttake.length ; i++) { //하자지점
                     if(ttake[i] >= 1000){
                         moneyEnd = i;
                         out = true;
                     }
+                    if(out){
+                        break;
+                    }
                 }
+
                 mLogger.error("getParsedata_moneyStart = " + moneyStart + "moneyEnd = " + moneyEnd);
                 for (int j = moneyStart; j < moneyEnd; j++) {
                     moneyofdist += distList.get(j);

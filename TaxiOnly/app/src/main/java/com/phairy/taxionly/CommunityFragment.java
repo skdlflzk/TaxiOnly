@@ -51,7 +51,7 @@ public class CommunityFragment extends Fragment {
 
         mLogger.info("onCreateView_페이지 로딩 중");
 
-        webView.loadUrl(Start.SURL);
+        webView.loadUrl("http://m.bumhyo.cafe24.com/board/index.html");
         return view;
     }
 

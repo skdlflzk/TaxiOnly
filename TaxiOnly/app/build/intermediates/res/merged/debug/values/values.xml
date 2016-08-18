@@ -247,7 +247,7 @@
     <string name="action_settings">Settings</string>
     <string name="app_name">TaxiOnly</string>
     <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
-    <string name="com.crashlytics.android.build_id" ns1:ignore="UnusedResources,TypographyDashes" translatable="false">28a58f58-a311-4c72-a86f-57d5862c83cf</string>
+    <string name="com.crashlytics.android.build_id" ns1:ignore="UnusedResources,TypographyDashes" translatable="false">938107eb-28a3-43e0-9f07-acadd93136c2</string>
     <string name="hello_world">Hello world!</string>
     <string name="status_bar_notification_info_overflow">999+</string>
     <string name="title_activity_control_part">ControlPartActivity</string>
