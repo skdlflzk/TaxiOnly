@@ -5,34 +5,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.databinding.DataBindingUtil;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-//import com.phairy.taxionly.databinding.HouseholdChartLayoutBinding;
-
 import org.apache.log4j.Logger;
-import org.w3c.dom.Text;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
+
+//import com.phairy.taxionly.databinding.HouseholdChartLayoutBinding;
 
 /**
  * Created by aa on 2016-07-13.
@@ -853,6 +844,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
 //        int[] minlist = new int[dailycount / 2]; // 몇개나 있는지는 모르지만 일단 최대 점/2
 
         boolean firs = true;
+        int ncontinue = 0;
         for (int n = dailycount - 1; n >= 0 && firs; n--) {       // //맨 뒤쪽이 하차로 끝나야 한다는 조건, 1번만 실행하면됨
             if ( ttake[n] == 1010 ) {    //	//맨뒤가 승차로 끝나면, 그 뒤에서 가장 긴 시간을 하차로 하나 만들어줌
                 mLogger.error("if ttake["+n+"] == 1010");
@@ -869,6 +861,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
                 ttake[mindex] = 1000;
                 ttakeoff = 2;  //   //하+승차가 최우선이므로 유지하면서, 뒤에 하차를 하나 만듦…!!앞에 하차 하나 지워야됨…
                 ttakein = 1;
+
                 mincounter = 0;
 
                 numberttakeoff[ttakeoff] = n;       // [2]는 내린 위치
@@ -907,6 +900,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
                 n = dailycount-1;
 
+                ncontinue = n;
             } else if (ttake[n] == 10) {
                 mLogger.error("if ttake["+n+"] == 10 ! 0으로 만들고 다음으로...");
 //                int t = ttakeinON;
@@ -921,40 +915,85 @@ public class HouseholdChartActivity extends AppCompatActivity {
 //                ttakein = 0;
 //                numberttakeoff[ttakeoff] = n;
 //                firs = false;
+                ncontinue = n;
             } else if (ttake[n] == 1000) {
                 mLogger.error("if ttake["+n+"] == 1000! 하차가 마지막이므로 일단 아웃");
                 ttakeoff = 1;     //하차면 카운트만 하고 그냥 넘어감
+                ttakein = 0;
                 numberttakeoff[ttakeoff] = n;
                 firs = false;
+                ncontinue = n;
             } //    //맨 뒤 정리 하는거는 위에 셋 중 하나 발생하면 바로 종료
         }
 
-        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ맨 뒤 값을 하차로 지정ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+        mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ맨 뒤 값이 하차로 지정됨ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
 
+        int tempNumberttakeoff = 0;
         ////----	그 다음 이어서…, n값 초기화 안하고 이어서 써도 될 것 같은데? 뭐 변수로 저장한다음 불러야되나?
-        for (int k = dailycount - 1; k >= 0; k--) {        ////중간값들에 대한 조건, 맨처음될때까지 반복실행해야함
+        for (int k = ncontinue - 1; k >= 0; k--) {        ////중간값들에 대한 조건, 맨처음될때까지 반복실행해야함
             if (ttake[k] > 0) {
+                mLogger.error("ttakein = "+ttakein+ ", ttakeoff = " + ttakeoff + ", k = "+ k );
+                for (int n = 0; n < numberttakeoff.length; n++) {
+                    if (numberttakeoff[n] != 0){
+                        mLogger.error("numberttakeoff["+n+"] = " +  numberttakeoff[n]);
+                    }
+                }
+
+
+
                 numberttakeoff[ttakeoff + 1] = k;
+
                 if ((ttakein + ttakeoff) % 2 == 0) {  //2로 나눠서 나머지 0 뭐 그런거
                     if (ttake[k] == 10) {
+                        mLogger.error("ttake["+k+"] == 1010");
                         if (timeList.get(numberttakeoff[ttakeoff + 1]) > timeList.get(numberttakeoff[ttakeoff])) {
                             ttake[numberttakeoff[ttakeoff]] = 0;
+                            mLogger.error("ㅡttake[numberttakeoff[ttakeoff]] = "+ttake[numberttakeoff[ttakeoff]] +"numberttakeoff[ttakeoff] = "+ numberttakeoff[ttakeoff]+", ttakeoff = "+ ttakeoff +"ㅡ");
                         } else {
                             ttake[numberttakeoff[ttakeoff + 1]] = 0;
+                            mLogger.error("ㅡttake[numberttakeoff[ttakeoff]] = "+ttake[numberttakeoff[ttakeoff]] +"numberttakeoff[ttakeoff] = "+ numberttakeoff[ttakeoff]+", ttakeoff = "+ ttakeoff +"ㅡ");
                         }
-                    } else if (ttake[k] == 1010) {
-                        ttake[numberttakeoff[ttakeoff]] = 0;
+
+
+                    } else if (ttake[k] == 1010) {      //에러, 앞에 10을 추가(자동 계산)
+                        ttake[tempNumberttakeoff] = 0;
+                        mLogger.error("numberttakeoff[tempNumberttakeoff] == "+numberttakeoff[tempNumberttakeoff]);
+                        mLogger.error("ㅡttake[tempNumberttakeoff] = "+ttake[tempNumberttakeoff] +", tempNumberttakeoff = "+ tempNumberttakeoff+", ttakeoff+1 = "+ ttakeoff +"+1ㅡ");
                         ttakeoff++;
+
+
+                        //TODO 0~k까지 가장 큰 delaytime에 중 ttake[k]==0일때 10을 넣는다.
+                        int maxtemp = 0;
+                        int maxlist[] = new int[k];
+                        int asdf = 0;
+                        for (int h = 0;  h < k ; h++){
+                            if(maxtemp < delayTime.get(h)){
+                                maxtemp = delayTime.get(h);
+
+                                if( ttake[maxtemp] == 0 ){
+                                    ttake[maxtemp] = 10;
+                                    maxlist[asdf] = maxtemp;
+                                    asdf++;
+                                }
+                            }
+                        }
+                        for (int j =0; j>k;j++){
+                            ttake[maxlist[asdf]] = 0;
+                        }
+
+
                     } else {
+
                         ttakeoff++;
                     }
                 } else {    //홀수인경우
                     if (ttake[k] == 10) {
+                        tempNumberttakeoff = numberttakeoff[ttakeoff + 1];
                         ttakein++;
                     } else if (ttake[k] == 1010) {
                         ttakein++;
                         ttakeoff++;
-                    } else {
+                    } else if (ttake[k] == 1000){
                         if (numberttakeoff[ttakeoff] < numberttakeoff[ttakeoff + 1]) {
                             maxtime = numberttakeoff[ttakeoff + 1];
                         } else {
@@ -968,6 +1007,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
                 }
             }
         }
+        mLogger.error("ttakein = "+ttakein+ ", ttakeoff = " + ttakeoff );
         mLogger.error("ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ홀짝수 재배열 결과ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
         for (int n = 0; n < dailycount; n++) {
             if (ttake[n] != 0){

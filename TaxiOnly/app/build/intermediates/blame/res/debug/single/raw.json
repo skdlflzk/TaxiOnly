@@ -8,7 +8,19 @@
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\raw\\partinfo"
     },
     {
+        "merged": "C:\\Users\\joohee\\Desktop\\TaxiOnly\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\data2",
+        "source": "C:\\Users\\joohee\\Desktop\\TaxiOnly\\TaxiOnly\\app\\src\\main\\res\\raw\\data2"
+    },
+    {
+        "merged": "C:\\Users\\joohee\\Desktop\\TaxiOnly\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\partinfo",
+        "source": "C:\\Users\\joohee\\Desktop\\TaxiOnly\\TaxiOnly\\app\\src\\main\\res\\raw\\partinfo"
+    },
+    {
         "merged": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\data",
         "source": "C:\\Users\\aa\\StudioProjects\\TaxiOnly\\app\\src\\main\\res\\raw\\data"
+    },
+    {
+        "merged": "C:\\Users\\joohee\\Desktop\\TaxiOnly\\TaxiOnly\\app\\build\\intermediates\\res\\merged\\debug\\raw\\data",
+        "source": "C:\\Users\\joohee\\Desktop\\TaxiOnly\\TaxiOnly\\app\\src\\main\\res\\raw\\data"
     }
 ]
