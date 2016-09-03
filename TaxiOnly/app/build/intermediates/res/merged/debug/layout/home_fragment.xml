@@ -21,6 +21,38 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
+    <RelativeLayout
+        android:id="@+id/graphView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerVertical="true"
+        android:layout_below="@+id/MainText"
+        android:layout_above="@+id/TakeButton"
+        android:layout_centerHorizontal="true">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/chart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"
+
+            android:layout_above="@+id/seekBar2" />
+
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar"
+            android:layout_above="@+id/seekBar2"
+            android:layout_alignStart="@+id/seekBar2" />
+
+        <SeekBar
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/seekBar2"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true" />
+
+    </RelativeLayout>
 
     <Button
         android:id="@+id/TakeButton"
@@ -53,6 +85,24 @@
         android:textSize="10dp"
         android:textColor = "#555555"
         android:layout_below="@+id/MainText" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/textView"
+        android:layout_below="@+id/graphView"
+        android:layout_toEndOf="@+id/TakeButton" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:text="Small Text"
+        android:id="@+id/textView2"
+        android:layout_alignTop="@+id/serviceButton"
+        android:layout_toEndOf="@+id/serviceButton" />
 
 
     <!--

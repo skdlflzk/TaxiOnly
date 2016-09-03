@@ -100,7 +100,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
             startTime = System.currentTimeMillis();
             fileName = "" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) +
-                    " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE)) + "";
+                    " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + "h" + String.format("%02d", calendar.get(Calendar.MINUTE)) + "m";
 
 
             SharedPreferences.Editor editor;
@@ -211,13 +211,20 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                     Start.toggleIsWorking(context, 0);  // 종료
                                     isWorking = 0;
 
-                                    if (!trigger) {      //수동 종료아닐 때 상단 알림
+                                    if (!trigger) {      //수동 종료아닐 때 상단 알림, trigger= false일때 실행
 
                                         NotificationBroadcast.setNotification(getContext(), 3); //timeout으로 종료 상단바 알림
 
                                     } else {              //수동 종료일 때 상단바 알림 제거
-                                        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                                        notificationManager.cancel(0);
+                                        try {
+                                            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                                            notificationManager.cancel(0);
+                                            mLogger.error(":onStartCommand_servive 수동 종료 , 알림 제거");
+
+                                        } catch(Exception e) {
+                                            mLogger.error(":onStartCommand_servive 수동 종료 , 알림 제거 error!! ");
+
+                                        }
                                     }
 
 

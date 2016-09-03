@@ -54,7 +54,7 @@ public class MainMenu extends ActionBarActivity implements OnClickListener {
 
         context = this;
 
-        enableGPSSetting();
+       // enableGPSSetting();
 
         //viewPager
         viewPager = (ViewPager) findViewById(R.id.viewPager);

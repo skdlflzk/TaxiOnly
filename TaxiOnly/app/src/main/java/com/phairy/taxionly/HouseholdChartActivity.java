@@ -187,6 +187,7 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
                     database = context.openOrCreateDatabase(DATABASENAME, Context.MODE_PRIVATE, null);
                     Cursor cursor = database.rawQuery("Select * FROM " + TABLENAME, null);
+
                 /*
                 + "_id integer PRIMARY KEY autoincrement, "
                         + "distance Integer, "
@@ -286,6 +287,8 @@ public class HouseholdChartActivity extends AppCompatActivity {
 
                         try {
                             if (intent.getIntExtra("flag", 0) == 123) {
+
+                                mLogger.error("clientEdit_ 승객 수 = " + editable.toString());
 
                  /*
                 (intent내부 - int flag)
@@ -962,25 +965,22 @@ public class HouseholdChartActivity extends AppCompatActivity {
                         ttakeoff++;
 
 
-                        //TODO 0~k까지 가장 큰 delaytime에 중 ttake[k]==0일때 10을 넣는다.
                         int maxtemp = 0;
-                        int maxlist[] = new int[k];
-                        int asdf = 0;
+                        int prev = 0;
+
                         for (int h = 0;  h < k ; h++){
                             if(maxtemp < delayTime.get(h)){
                                 maxtemp = delayTime.get(h);
 
                                 if( ttake[maxtemp] == 0 ){
+                                    ttake[prev] = 0;
                                     ttake[maxtemp] = 10;
-                                    maxlist[asdf] = maxtemp;
-                                    asdf++;
+                                    prev = maxtemp;
+
                                 }
                             }
                         }
-                        for (int j =0; j>k;j++){
-                            ttake[maxlist[asdf]] = 0;
-                        }
-
+                        mLogger.error("ttake[" + maxtemp + "] 위치에 10을 지정함!");
 
                     } else {
 

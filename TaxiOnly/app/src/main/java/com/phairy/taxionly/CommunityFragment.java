@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,7 @@ public class CommunityFragment extends Fragment {
     private Logger mLogger = Logger.getLogger(CommunityFragment.class);
 
     String TAG = Start.TAG;
+    WebView webView;
     final int sdkVersion = Integer.parseInt(Build.VERSION.SDK);
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -37,7 +39,7 @@ public class CommunityFragment extends Fragment {
         Log.e(TAG, "--CommunityFragment--");
         View view = inflater.inflate(R.layout.community_fragment, container, false);
 
-        WebView webView = (WebView) view.findViewById(R.id.webView);
+        webView = (WebView) view.findViewById(R.id.webView);
         webView.setWebViewClient(new WebClient());
         WebSettings set = webView.getSettings();
         if( sdkVersion < Build.VERSION_CODES.FROYO){
@@ -47,11 +49,34 @@ public class CommunityFragment extends Fragment {
 
         set.setJavaScriptEnabled(true);
         set.setBuiltInZoomControls(true);
+        webView.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
 
+                //This is the filter
+                if (event.getAction() != KeyEvent.ACTION_DOWN)
+                    return true;
+
+
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
+                    if (webView.canGoBack()) {
+                        webView.goBack();
+                        mLogger.debug("CommunityFragment: back");
+                    } else {
+                        mLogger.error("CommunityFragment: back 눌러짐");
+                        ( getActivity()).onKeyDown(keyCode,event);
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
 
         mLogger.info("onCreateView_페이지 로딩 중");
-
         webView.loadUrl("http://m.bumhyo.cafe24.com/board/index.html");
+
         return view;
     }
 
@@ -62,7 +87,6 @@ public class CommunityFragment extends Fragment {
             return true;
         }
     }
-
 
 
 }

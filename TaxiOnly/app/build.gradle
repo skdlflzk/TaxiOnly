@@ -42,15 +42,12 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/android-async-http-1.4.9.jar')
     compile 'com.loopj.android:android-async-http:1.4.9'
-
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:design:22.2.1'
-
     compile files('libs/android-logging-log4j-1.0.3.jar')
     compile 'log4j:log4j:1.2+'
-
     compile('com.crashlytics.sdk.android:crashlytics:2.5.5@aar') {
         transitive = true;
     }
-
+    compile files('libs/mpandroidchartlibrary-2-2-4.jar')
 }

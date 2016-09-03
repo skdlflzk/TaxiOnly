@@ -9,6 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
@@ -19,18 +22,36 @@ import android.os.Vibrator;
 import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
 import android.widget.EditText;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
+import com.github.mikephil.charting.animation.Easing;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.components.LimitLine;
+import com.github.mikephil.charting.components.MarkerView;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.ChartTouchListener;
+import com.github.mikephil.charting.listener.OnChartGestureListener;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.phairy.taxionly.databinding.HomeFragmentBinding;
 
 import org.apache.log4j.Logger;
@@ -45,6 +66,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
+//TODO mpandroidchartlibrary-2-2-4 추가됨  API level 8 이상, 아파치 2.0 라이센스 애니메이션 쓰면 11이상
+//https://github.com/PhilJay/MPAndroidChart
 
 public class HomeFragment extends Fragment {
 
@@ -55,7 +78,14 @@ public class HomeFragment extends Fragment {
 
 //    private Button serviceButton;
     private TextView logtext;
-    HomeFragmentBinding binding;
+
+    static HomeFragmentBinding binding;
+    private ViewGroup layoutGraphView;
+
+
+    private LineChart mChart;
+    private SeekBar mSeekBarX, mSeekBarY;
+    private TextView tvX, tvY;
 
     public HomeFragment() {
         context = getActivity();
@@ -70,7 +100,11 @@ public class HomeFragment extends Fragment {
 
         logtext = (TextView )view.findViewById(R.id.logText);
 
+        layoutGraphView = (ViewGroup) view.findViewById(R.id.graphView);
 
+
+
+//        setLineGraph();
 
 
         binding.TakeButton.setOnClickListener(new View.OnClickListener() {
@@ -78,151 +112,7 @@ public class HomeFragment extends Fragment {
             public void onClick(View view) {
 
                 view.setEnabled(false);
-//                Toast.makeText(context,"파일 파싱 시작!",Toast.LENGTH_SHORT).show();
-/*
-                AsyncHttpSet asyncHttpSet = new AsyncHttpSet(true);
-                RequestParams params = new RequestParams();
-                params.setContentEncoding("UTF-8");
-                try {
-                    String[] fileList = getTitleList();
 
-                    if (fileList.length == 0) {
-                        mLogger.debug("WifiReceiver: /TaxiOnly/GPS 내 백업할 파일이 없습니다");
-                        return;
-                    } else {
-
-                        String count = ""+fileList.length;
-
-                        params.put("COUNT", count);
-                        params.put("FAPP",123);
-
-                    }
-                    mLogger.debug("WifiReceiver: GPS 백업 시작... 업로드 파일 개수 : "+ fileList.length);
-                    String mSdPath;
-                    String ext = Environment.getExternalStorageState();
-                    if (ext.equals(Environment.MEDIA_MOUNTED)) {
-                        mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-                    } else {
-                        mSdPath = Environment.MEDIA_UNMOUNTED;
-                    }
-
-                    for (int i = 0; i < fileList.length; i++) {
-
-                        File file = new File( mSdPath+File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileList[i]);
-                        params.put("GPX"+ (i + 1), file);  //사용자 구분이 필요한가?              GPX1, GPX2, ...
-                        params.put("FileName" + (i + 1), "" + fileList[i]);    //해당 파일과 파일 이름 전송함  FileName1, FileName2, ...
-                    }
-
-                } catch (Exception e) {
-                    mLogger.error("WifiReceiver: GPS 파일 폼 생성 중 에러...");
-                    e.printStackTrace();
-                }
-
-
-                asyncHttpSet.post("/GPSbackup", params, new AsyncHttpResponseHandler() {   //업데이트할 php의 주소 정하기
-
-
-
-                    @Override
-                    public void onSuccess(int i, cz.msebera.android.httpclient.Header[] headers, byte[] bytes) {
-                        mLogger.error("WifiReceiver:onSuccess statusCode i =" +i+", charset = "  +getCharset());
-                        try{
-
-                            String s = new String(bytes,getCharset());
-
-                            int r = s.indexOf("result=");
-                            String result = s.substring(r+7,r+8);
-                            if(result.equals("1")){
-                                mLogger.warn("WifiReceiver:onSuccess result success ");
-                            }else{
-                                mLogger.warn("WifiReceiver:onSuccess but result = "+ result);
-                            }
-
-
-                            logtext.setText(""+s);
-
-
-//                        String str="";
-//                        for(int i1= 0; i1 < bytes.length; i1++){
-//
-//                            str += Character.toString ((char) bytes[i1]);
-//
-//                        }
-//
-
-//                        mLogger.warn("WifiReceiver:onSuccess length = "+ str.length());
-
-                        }catch(Exception e){
-
-                            e.printStackTrace();
-                            mLogger.error("WifiReceiver:onSuccess string trans error");
-
-                        }
-
-
-                        mLogger.info("WifiReceiver: 경로 백업 성공");
-
-                        String ticker = "서버에 운행 정보를 백업했습니다";
-
-                        try {
-                            String[] fileList = getTitleList();
-                            int isDeleted = 0;
-
-                            String mSdPath;
-                            String ext = Environment.getExternalStorageState();
-                            if (ext.equals(Environment.MEDIA_MOUNTED)) {
-                                mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-                            } else {
-                                mSdPath = Environment.MEDIA_UNMOUNTED;
-                            }
-
-                            for (int j = 0; j < fileList.length; j++) {
-
-//                            File fileName = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileList[j]);
-//                            if(fileName.delete()) {
-//                                isDeleted++;
-//                            }
-                            }
-
-                            if (isDeleted == fileList.length) {
-                                mLogger.info("WifiReceiver: 백업된 파일 삭제 성공");
-                            } else {
-                                mLogger.info("WifiReceiver: 백업된 파일 삭제 실패");
-                            }
-
-                        }catch(Exception e){
-                            mLogger.error("WifiReceiver: 백업된 파일 삭제 중 Exception Error");
-                        }
-
-                    }
-
-                    @Override
-                    public void onFailure(int i, cz.msebera.android.httpclient.Header[] headers, byte[] bytes, Throwable throwable) {
-
-                        mLogger.error("WifiReceiver:운행 정보 전송 실패");
-                        String ticker = "서버에 운행 정보를 백업하지 못했습니다";
-
-                        try {
-
-                            Calendar calendar = Calendar.getInstance();
-                            String contents = "" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) +
-                                    " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ":" + String.format("%02d", calendar.get(Calendar.MINUTE));
-
-
-                            if (GpsCatcher.getLocation() != null) {
-                                contents += " at (" + GpsCatcher.getLocation().getLatitude() + ", " + GpsCatcher.getLocation().getLatitude() + ")" + System.lineSeparator();
-                            } else {
-                                contents += System.lineSeparator();
-                            }
-
-                            mLogger.error("WifiReceiver: onFailure...at " + contents);
-
-                        } catch (Exception e) {
-                            mLogger.error("WifiReceiver: FAIL to send!! FAIL to write!!");
-                        }
-                    }
-                });
-*/
                 Runnable run = new Runnable() {
                     @Override
                     public void run() {
@@ -233,7 +123,7 @@ public class HomeFragment extends Fragment {
                             ArrayList<Double> distList = new ArrayList<>();
                             ArrayList<Integer> nightList = new ArrayList<>();
                             ArrayList<Integer> timeList = new ArrayList<>();
-                            int distance=0;
+                            int distance = 0;
                             mLogger.debug("파싱 시작");
 
                             String data = null;
@@ -270,7 +160,7 @@ public class HomeFragment extends Fragment {
 
                             int dailycount = entertoken.countTokens();
 
-                            mLogger.debug("초기값 완료 dailycount = " + dailycount + "(" + lattitude1 + "," + longitude1 +")" );
+                            mLogger.debug("초기값 완료 dailycount = " + dailycount + "(" + lattitude1 + "," + longitude1 + ")");
 
                             Calendar c1 = Calendar.getInstance();
 
@@ -293,10 +183,10 @@ public class HomeFragment extends Fragment {
 
                                 Calendar c2 = Calendar.getInstance();
 
-                                if(Integer.parseInt(h) == 0){
+                                if (Integer.parseInt(h) == 0) {
                                     int t = 24;
-                                    c2.set(Calendar.HOUR_OF_DAY,t);
-                                }else{
+                                    c2.set(Calendar.HOUR_OF_DAY, t);
+                                } else {
                                     c2.set(Calendar.HOUR_OF_DAY, Integer.parseInt(h));   //1~24 범위(아마)
                                 }
                                 c2.set(Calendar.MINUTE, Integer.parseInt(m));
@@ -305,7 +195,7 @@ public class HomeFragment extends Fragment {
                                 intervalTime = (int) (c2.getTimeInMillis() - c1.getTimeInMillis()) / 1000; //초단위로 환산
 
                                 if (intervalTime < 0) {
-                                    c2.set(Calendar.HOUR_OF_DAY, Integer.parseInt(h)+1);   //1~24 범위(아마)  24
+                                    c2.set(Calendar.HOUR_OF_DAY, Integer.parseInt(h) + 1);   //1~24 범위(아마)  24
 
                                     intervalTime = (int) (c2.getTimeInMillis() - c1.getTimeInMillis()) / 1000; //초단위로 환산
                                 }
@@ -313,7 +203,7 @@ public class HomeFragment extends Fragment {
                                 float[] result = new float[3];
                                 Location.distanceBetween(lattitude1, longitude1, lattitude2, longitude2, result); // m 단위
                                 double intervalDistance = result[0];
-                                distance +=intervalDistance;
+                                distance += intervalDistance;
 
                                 timeList.add(intervalTime);                                                                                // Tn+1 - Tn ,second
                                 lonList.add(longitude2);                                                                                          // yn+1
@@ -367,52 +257,95 @@ public class HomeFragment extends Fragment {
             }
         });
 
-//        serviceButton = (Button) view.findViewById(R.id.serviceButton);
-
-
         if (Start.getIsWorking(getActivity()) == 2) {
-
             binding.serviceButton.setText("GPS 종료하기");
         } else {
-
             binding.serviceButton.setText("GPS 시작하기");
 
         }
 
         binding.serviceButton.setOnClickListener(new View.OnClickListener() {
-                                             @Override
-                                             public void onClick(View view) {
+                                                     @Override
+                                                     public void onClick(View view) {
 
-                                                 Vibrator vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                                                 vibe.vibrate(70);
-                                                 mLogger.debug("onServiceButtonClicked_");
+                                                         Vibrator vibe = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                                                         vibe.vibrate(70);
+                                                         mLogger.debug("onServiceButtonClicked_");
 
 
-                                                 String question;
+                                                         String question;
 
-                                                 if (Start.getIsWorking(getActivity()) == 0) {
-                                                     question = "운행을 기록할까요?";
+                                                         if (Start.getIsWorking(getActivity()) == 0) {
+                                                             question = "운행을 기록할까요?";
 
-                                                 } else {
-                                                     question = "운행 기록을 종료할까요?";
+                                                         } else {
+                                                             question = "운행 기록을 종료할까요?";
 
+                                                         }
+
+                                                         new AlertDialog.Builder(getActivity()).
+                                                                 setIcon(android.R.drawable.ic_dialog_alert).
+                                                                 setTitle("확인").
+                                                                 setMessage(question).
+                                                                 setNegativeButton("취소", null).
+                                                                 setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                                                     @Override
+                                                                     public void onClick(DialogInterface dialogInterface, int i) {
+                                                                         toggleGPSCatcher(Start.getIsWorking(getActivity()));
+                                                                     }
+                                                                 }).show();
+
+                                                     }
                                                  }
-
-                                                 new AlertDialog.Builder(getActivity()).
-                                                         setIcon(android.R.drawable.ic_dialog_alert).
-                                                         setTitle("확인").
-                                                         setMessage(question).
-                                                         setNegativeButton("취소", null).
-                                                         setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                                                             @Override
-                                                             public void onClick(DialogInterface dialogInterface, int i) {
-                                                                 toggleGPSCatcher(Start.getIsWorking(getActivity()));
-                                                             }
-                                                         }).show();
-
-                                             }
-                                         }
         );
+/*
+그래프
+ */
+
+        ArrayList<String> labels = new ArrayList<String>();
+        labels.add("January");
+        labels.add("February");
+        labels.add("March");
+        labels.add("April");
+        labels.add("May");
+        labels.add("June");
+
+        ArrayList<Entry> entries = new ArrayList<>();
+        entries.add(new Entry(4f, 0));
+        entries.add(new Entry(8f, 1));
+        entries.add(new Entry(6f, 2));
+        entries.add(new Entry(2f, 3));
+        entries.add(new Entry(18f, 4));
+        entries.add(new Entry(9f, 5));
+
+        LineDataSet lineDataSet = new LineDataSet(entries,"# of Ex-Rates");
+
+        lineDataSet.setColors(ColorTemplate.VORDIPLOM_COLORS);
+        lineDataSet.setDrawCubic(true);
+        lineDataSet.setDrawFilled(true); //선아래로 색상표시
+        lineDataSet.setDrawValues(false);
+
+        LineData lineData = new LineData(labels, lineDataSet);
+        binding.chart.setData(lineData); // set the data and list of lables into chart
+
+        MarkerView mv = new CustomMarkerView(getActivity(),R.layout.content_marker_view) ;//new CustomMarkerView(this,R.layout.content_marker_view);
+        binding.chart.setMarkerView(mv);
+        binding.chart.setDrawMarkerViews(true);
+
+        YAxis y = binding.chart.getAxisLeft();
+        y.setTextColor(Color.WHITE);
+
+        XAxis x = binding.chart.getXAxis();
+        x.setTextColor(Color.WHITE);
+
+        Legend legend = binding.chart.getLegend();
+        legend.setTextColor(Color.WHITE);
+
+        binding.chart.animateXY(2000, 2000); //애니메이션 기능 활성화
+        binding.chart.invalidate();
+
+
+
 
 
         return view;
@@ -426,7 +359,6 @@ public class HomeFragment extends Fragment {
 
     private void manuallyStartGpsCatcher() {
 
-
         try {
 
             Start.toggleIsWorking(getActivity(), 1);
@@ -438,8 +370,6 @@ public class HomeFragment extends Fragment {
             GpsCatcher.trigger = false;  // trigger 끄기
 
             mLogger.error("manuallyStartGpsCatcher_수동으로 GPSCatcher를 실행합니다");
-
-
 
 
         } catch (Exception e) {
@@ -473,10 +403,6 @@ public class HomeFragment extends Fragment {
 
             }
 
-            /*
-
-             */
-
         } else {  //isWorking == false 였다면
 
             try {
@@ -490,7 +416,6 @@ public class HomeFragment extends Fragment {
 
                     return;
                 }
-
 
                 mLogger.error("toggleGPSCatcher_ GPS ON");
 
@@ -507,43 +432,33 @@ public class HomeFragment extends Fragment {
             }
         }
     }
+    public class CustomMarkerView extends MarkerView {
 
-    private String[] getTitleList() //알아 보기 쉽게 메소드 부터 시작합니다.
-    {
-        try {
+        private TextView tvContent;
 
-//            FilenameFilter fileFilter = new FilenameFilter()  //이부분은 특정 확장자만 가지고 오고 싶을 경우 사용하시면 됩니다.
-//            {
-//                public boolean accept(File dir, String name)
-//                {
-//                    return name.endsWith("gpx"); //이 부분에 사용하고 싶은 확장자를 넣으시면 됩니다.
-//                } //end accept
-//            };
-            String mSdPath;
-            String ext = Environment.getExternalStorageState();
-            if (ext.equals(Environment.MEDIA_MOUNTED)) {
-                mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-            } else {
-                mSdPath = Environment.MEDIA_UNMOUNTED;
-            }
+        public CustomMarkerView (Context context, int layoutResource) {
+            super(context, layoutResource);
+            // this markerview only displays a textview
+            tvContent = (TextView) findViewById(R.id.tvContent);
+        }
 
-            File file = new File(mSdPath +File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator);
+        // callbacks everytime the MarkerView is redrawn, can be used to update the
+        // content (user-interface)
+        @Override
+        public void refreshContent(Entry e, Highlight highlight) {
+            tvContent.setText("" + e.getVal()); // set the entry-value as the display text
+        }
 
-            File[] files = file.listFiles();//위에 만들어 두신 필터를 넣으세요. 만약 필요치 않으시면 fileFilter를 지우세요.
+        @Override
+        public int getXOffset(float xpos) {
+            // this will center the marker-view horizontally
+            return -(getWidth() / 2);
+        }
 
-            String[] titleList = new String[files.length]; //파일이 있는 만큼 어레이 생성했구요
-
-            for (int i = 0; i < files.length; i++) {
-                titleList[i] = files[i].getName();    //루프로 돌면서 어레이에 하나씩 집어 넣습니다.
-                mLogger.debug("WifiReceiver: fileName = " + files[i].getName());
-            }//end for
-            return titleList;
-
-        } catch (Exception e) {
-            mLogger.error("WifiReceiver: 파일 리스트를 가져오지 못했습니다");
-            return null;
-        }//end catch()
-    }//end getTitleList
-
-
+        @Override
+        public int getYOffset(float ypos) {
+            // this will cause the marker-view to be above the selected value
+            return -getHeight();
+        }
+    }
 }

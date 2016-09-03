@@ -17,8 +17,12 @@ import com.loopj.android.http.RequestParams;
 
 import org.apache.log4j.Logger;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.Calendar;
 
@@ -51,10 +55,11 @@ public class WifiReceiver extends BroadcastReceiver {
 
             isProgress = true;
 
-            AsyncHttpSet asyncHttpSet = new AsyncHttpSet(true);
+            AsyncHttpSet asyncHttpSet = new AsyncHttpSet(false);
             RequestParams params = new RequestParams();
             params.setContentEncoding("UTF-8");
             try {
+
                 String[] fileList = getTitleList();
 
                 if (fileList.length == 0) {
@@ -64,8 +69,16 @@ public class WifiReceiver extends BroadcastReceiver {
 
                     String count = ""+fileList.length;
 
-                    params.put("COUNT", count);
-                    params.put("FAPP","true");
+//                    params.put("COUNT", count);
+                    params.put("FAPP","phairy");
+                    params.put("COUNT",fileList.length);
+
+                    params.put("FAPP1",true);
+                    params.put("FAPP2","true");
+
+                    params.put("INT1",10);
+                    params.put("INT2","10");
+
 
                 }
                 mLogger.debug("WifiReceiver: GPS 백업 시작... 업로드 파일 개수 : "+ fileList.length);
@@ -80,8 +93,17 @@ public class WifiReceiver extends BroadcastReceiver {
                 for (int i = 0; i < fileList.length; i++) {
 
                     File file = new File( mSdPath+File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileList[i]);
-                    params.put("GPX"+ (i + 1), file);  //사용자 구분이 필요한가?              GPX1, GPX2, ...
-                    params.put("FileName" + (i + 1), "" + fileList[i]);    //해당 파일과 파일 이름 전송함  FileName1, FileName2, ...
+
+                    FileInputStream in = new FileInputStream(file);
+                    StringBuffer s = new StringBuffer();
+                    int c;
+                    while ((c = in.read()) != -1) s.append((char)c);
+
+
+                    String data = s.toString();
+                    params.put("GPX"+i,data);
+                    params.put("GPX"+i+"name",fileList[i]);
+
                 }
 
             } catch (Exception e) {
@@ -96,10 +118,13 @@ public class WifiReceiver extends BroadcastReceiver {
 
                 @Override
                 public void onSuccess(int i, cz.msebera.android.httpclient.Header[] headers, byte[] bytes) {
-                    mLogger.error("WifiReceiver:onSuccess statusCode i =" +i+", charset = "  +getCharset());
+                    mLogger.error("WifiReceiver:onSuccess statusCode i =" + i + ", charset = " + getCharset());
+
                     try{
 
                         String s = new String(bytes,getCharset());
+                        String ss = new String(bytes);
+                        HomeFragment.binding.MainText.setText(""+ss);
 
                         int r = s.indexOf("result=");
                         String result = s.substring(r+7,r+8);
@@ -108,6 +133,7 @@ public class WifiReceiver extends BroadcastReceiver {
                         }else{
                             mLogger.warn("WifiReceiver:onSuccess but result = "+ result);
                         }
+                        mLogger.error("WifiReceiver:onSuccess contents = " + s);
 
 //                        Toast.makeText(context,""+s,Toast.LENGTH_LONG).show();
 
@@ -147,10 +173,10 @@ public class WifiReceiver extends BroadcastReceiver {
 
                         for (int j = 0; j < fileList.length; j++) {
 
-//                            File fileName = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileList[j]);
-//                            if(fileName.delete()) {
-//                                isDeleted++;
-//                            }
+                            File fileName = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileList[j]);
+                            if(fileName.delete()) {
+                                isDeleted++;
+                            }
                         }
 
                         if (isDeleted == fileList.length) {
@@ -235,6 +261,7 @@ public class WifiReceiver extends BroadcastReceiver {
     {
         try {
 
+            //TODO 50kb이하 파일은 그냥 삭제시킬까?
 //            FilenameFilter fileFilter = new FilenameFilter()  //이부분은 특정 확장자만 가지고 오고 싶을 경우 사용하시면 됩니다.
 //            {
 //                public boolean accept(File dir, String name)
