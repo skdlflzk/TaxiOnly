@@ -9,6 +9,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -23,6 +27,7 @@ import android.util.Log;
 
 import org.apache.log4j.Logger;
 
+import java.beans.IndexedPropertyChangeEvent;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
@@ -70,6 +75,9 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     Calendar firstTime;
     Calendar secTime;
 
+    String mSdPath;
+
+    String ext;
     int dailyCount = 0;
 
     static ArrayList<Double> lonList = new ArrayList<>();
@@ -77,6 +85,58 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
     static ArrayList<Double> distList = new ArrayList<>();
     static ArrayList<Integer> nightList = new ArrayList<>();
     static ArrayList<Integer> timeList = new ArrayList<>();
+
+    // 센서 관리자
+    SensorManager sm = null;
+    // 가속도 센서
+    Sensor accSensor = null;
+    // 방향 센서
+    Sensor oriSensor = null;
+
+    File file1;
+    FileOutputStream fos1;
+
+    File file2;
+    FileOutputStream fos2;
+    String xyro;
+
+    SensorEventListener sensorEventListener = new SensorEventListener() {
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            switch (event.sensor.getType()) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    mLogger.info("sensor_ acceleromter x = " + event.values[0] + ", y = " + event.values[1] + ", z = " + event.values[2]);
+                    try {
+                        xyro = event.values[0]+"\t" + event.values[1]+"\t" +event.values[2]+"\n";
+                        fos2.write(xyro.getBytes());
+                        fos2.close();
+
+                    }catch(Exception e){
+                        mLogger.info("sensor_ acceleromter error ");
+                    }
+                    break;
+                case Sensor.TYPE_ORIENTATION:
+                    try {
+                        xyro = event.values[0]+"\t" + event.values[1]+"\t" +event.values[2]+"\n";
+                        fos1 = new FileOutputStream(file1, true);  //mode_append;
+                        fos1.write(xyro.getBytes());
+                        fos1.close();
+
+                    }catch(Exception e){
+                        e.printStackTrace();
+                        mLogger.info("sensor_ TYPE_ORIENTATION error ");
+                    }
+
+                    break;
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int i) {
+            // TODO Auto-generated method stub
+        }
+    };
+
 
 
     @Override
@@ -93,6 +153,15 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
 
         calendar = Calendar.getInstance();
 
+        // SensorManager 인스턴스를 가져옴
+        sm = (SensorManager) getSystemService(SENSOR_SERVICE);
+// 가속도 센서
+        accSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+// 방향 센서
+        oriSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+
+
+        sm.registerListener(sensorEventListener,oriSensor,SensorManager.SENSOR_DELAY_UI);
         if (isWorking == 1) {
 
             NotificationBroadcast.setNotification(context, 2);  // 안전 운행 시작!
@@ -119,16 +188,12 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
         }
 
 
-        String mSdPath;
-
-        String ext = Environment.getExternalStorageState();
+        ext = Environment.getExternalStorageState();
         if (ext.equals(Environment.MEDIA_MOUNTED)) {
             mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
         } else {
             mSdPath = Environment.MEDIA_UNMOUNTED;
         }
-
-        file = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator + fileName + ".gpx");  //파일 생성!
 
 
         if (isWorking == 1) {
@@ -137,8 +202,19 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
             try {
                 File dir = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator);
                 dir.mkdir();
+                dir = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "xyro" + File.separator);
+                dir.mkdir();
 
+                file = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator + fileName + ".gpx");  //파일 생성!
+
+                file1 = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "xyro" + File.separator + fileName + "Ori.txt");  //파일 생성!
+                file2 = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "xyro" + File.separator + fileName + "Excel.txt");  //파일 생성!
+
+
+                fos1 = new FileOutputStream(file1, true);  //mode_append;
+                fos2 = new FileOutputStream(file2, true);  //mode_append;
                 fos = new FileOutputStream(file, true);  //mode_append
+
                 String header = "<gpx xmlns=\"http://www.topografix.com/GPX/1/1\" " +
                         "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" version=\"1.1\" " +
                         "creator=\"TAXIONLY\" xsi:schemaLocation=\"http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd\">" + System.lineSeparator() + "" +
@@ -265,7 +341,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                     }
 
                                     File f = new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "Temp" + File.separator + fileName + ".gpx");
-                                    if(!f.renameTo(new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + fileName + ".gpx"))){
+                                    if(!f.renameTo(new File(mSdPath + File.separator + "TaxiOnly" + File.separator + "GPS" + File.separator + "("+x1+","+y1+")"+fileName + ".gpx"))){
                                         mLogger.error(" onStartCommand_파일 이동 실패. 파일이 없거나 이상함");
                                     }
 
@@ -281,6 +357,7 @@ public class GpsCatcher extends Service implements LocationListener {  //} imple
                                 bundle.putInt("action", 1234);
                                 bundle.putInt("dailyCount", dailyCount);
                                 bundle.putInt("distance", distance);
+                                bundle.putString("fileName",fileName);
                                  /*
                 (intent내부 - int flag)
                           ( ㄴBundle data - int action)
